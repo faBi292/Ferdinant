@@ -41,6 +41,8 @@ int check_status(uint32_t aufgang_sek, uint32_t untergang_sek); // gibt 1 für L
 uint32_t get_offset();                                          // Berechnet den Offset in bezug zu 1970 zu dem jeweiligen start datum der einstellung. Bsp sekunden von 1970 bis 2002
 void increaseDateTime(DateTime &dt, int days);                  // Erhöht das Datum einer DateTime Variablen um eine Anzahl von Tagen
 void check_star();                                              // Überprüft ob die Sternchentaste gedrückt geahlten wird, nach 3 Sekunden führt sie dann set_usertime() aus.
+uint32_t check_aufgang_sek(unsigned int days);
+uint32_t check_untergang_sek(unsigned int days);
 
 void setup()
 {
@@ -68,28 +70,27 @@ void setup()
 
 void loop()
 {
+  static unsigned long lastTime = 0;
 
   check_star();
 
-  static unsigned long lastTime = 0;
-  unsigned long currentTime = millis();
-  if (currentTime - lastTime >= 1000)
+  if (millis() - lastTime >= 1000)
   {
-    lastTime = currentTime;
+    lastTime = millis();
+    Serial.print("Tag: ");
     Serial.println(get_days_passed());
-    print_time();
+    Serial.print("Aufgang: ");
+    Serial.println(check_aufgang_sek(get_days_passed()));
+    Serial.print("Untergang: ");
+    Serial.println(check_untergang_sek(get_days_passed()));
+    Serial.print("Licht:  ");
+    Serial.println(check_status(check_aufgang_sek(get_days_passed()), check_untergang_sek(get_days_passed())));
+    Serial.print("Akteulle Sek:");
+    Serial.println(get_seconds_passed_daily());
 
     // print_time_passed();
     // Serial.println(get_seconds_passed_daily());
   }
-
-  //  Read the pushed button
-  /*char button = customKeypad.getKey();
-
-  if (button)
-  {
-    Serial.println(button);
-  }*/
 }
 
 void check_star()
@@ -97,9 +98,10 @@ void check_star()
   static uint8_t counter = 0;
   static unsigned long lasttime = 0;
 
-  //Serial.println(millis() - lasttime);
+  // Serial.println(millis() - lasttime);
 
-  if(millis() - lasttime  >= 1000){
+  if (millis() - lasttime >= 1000)
+  {
     counter = 0;
     lasttime = millis();
   }
@@ -142,8 +144,9 @@ void set_usertime()
     for (int i = 0; i < 4; i++)
     {
       user_time_code[i] = customKeypad.waitForKey();
+      Serial.print(user_time_code[i]);
     }
-
+    Serial.println();
     Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1] + user_time_code[2] + user_time_code[3]);
 
     if (atoi(user_time_code) == 2002) // hier muss Funktion kommen die Checkt, ob der ModiCode auch wirklich  einen Modi hat.
@@ -169,8 +172,10 @@ void set_usertime()
     for (int i = 0; i < 2; i++)
     {
       user_time_code[i] = customKeypad.waitForKey();
+      Serial.print(user_time_code[i]);
     }
 
+    Serial.println();
     Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1]);
 
     if (atoi(user_time_code) < 24)
@@ -196,8 +201,10 @@ void set_usertime()
     for (int i = 0; i < 2; i++)
     {
       user_time_code[i] = customKeypad.waitForKey();
+      Serial.print(user_time_code[i]);
     }
 
+    Serial.println();
     Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1]);
 
     if (atoi(user_time_code) < 60)
@@ -216,15 +223,17 @@ void set_usertime()
   // vierte Schleife für Tage
   do
   {
-    Serial.println("Tage eingeben Bsp. '000'");
+    Serial.println("Tage skippen Bsp. '023'");
 
     char user_time_code[4] = "000";
 
     for (int i = 0; i < 3; i++)
     {
       user_time_code[i] = customKeypad.waitForKey();
+      Serial.print(user_time_code[i]);
     }
 
+    Serial.println();
     Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1] + user_time_code[2]);
 
     if (atoi(user_time_code) < 300)
@@ -291,16 +300,16 @@ uint32_t get_seconds_passed_daily()
 
 int check_status(uint32_t aufgang_sek, uint32_t untergang_sek)
 {
-  static DateTime now;
-  static uint32_t sekunden_passed_day;
-
-  now = rtc.now();
-
-  sekunden_passed_day = (now.unixtime() - get_offset()) % (86400); // 86400 = 60*60*24
-
-  if (sekunden_passed_day > aufgang_sek && sekunden_passed_day < untergang_sek)
+  if ((get_seconds_passed_daily() > aufgang_sek))
   {
-    return 1;
+    if ((get_seconds_passed_daily() < untergang_sek))
+    {
+      return 1;
+    }
+    else
+    {
+      return 0;
+    }
   }
   else
   {
@@ -345,4 +354,29 @@ unsigned int get_days_passed()
 void increaseDateTime(DateTime &dt, int days)
 {
   dt = dt + TimeSpan(days, 0, 0, 0);
+}
+
+uint32_t check_aufgang_sek(unsigned int days)
+{
+  static DateTime now;
+
+  now = rtc.now();
+  if (now.year() == 2002)
+  {
+    return (uint32_t)(21600 - (3600 / 90) * (days - 1));
+  }
+  return 0;
+}
+
+
+uint32_t check_untergang_sek(unsigned int days)
+{
+  static DateTime now;
+
+  now = rtc.now();
+  if (now.year() == 2002)
+  {
+    return (uint32_t)(64800 + (3600 / 90) * (days - 1));
+  }
+  return 0;
 }
