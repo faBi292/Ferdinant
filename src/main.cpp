@@ -1,8 +1,9 @@
-
+#include <Arduino.h>
 #include <Keypad.h>
 #include <RTClib.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <LiquidCrystal.h>
 
 RTC_DS3231 rtc;
 
@@ -32,6 +33,17 @@ typedef struct
 
 } time_struct;
 
+const int rs = A0, en = A1, d4 = A2, d5 = A3, d6 = 10, d7 = 11;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+enum zustaende
+{
+  Knopf_A,
+  Knopf_B,
+  Knopf_C,
+  Knopf_D,
+};
+
 void set_usertime();                                            // Ermöglicht den Benutzer seine Einstellung vorzunehmen.
 void print_time();                                              // Printed die aktuelle Uhrzeit der Uhr
 void print_time_passed();                                       // Printed die verstrichene Zeit seit anfang der Einstellung.
@@ -43,26 +55,26 @@ void increaseDateTime(DateTime &dt, int days);                  // Erhöht das D
 void check_star();                                              // Überprüft ob die Sternchentaste gedrückt geahlten wird, nach 3 Sekunden führt sie dann set_usertime() aus.
 uint32_t check_aufgang_sek(unsigned int days);
 uint32_t check_untergang_sek(unsigned int days);
+void display_idle(char Knopf);
+void check_Knopf();
 
 void setup()
 {
   Serial.begin(57600); // Initialise the serial monitor
+
+  lcd.begin(16, 2);
+  lcd.print("Loading...");
+
   Wire.begin();
   rtc.begin();
 
-  while (!Serial)
-    ;
-
   if (!rtc.begin())
   {
-    Serial.println("RTC konnte nicht gefunden werden!");
+    lcd.println("RTC not found!");
     while (1)
       ;
   }
 
-  customKeypad.setHoldTime(3000);
-
-  // set_usertime(); // Neues Programmstarten holt dafür vom nutzer die Infos
   DateTime dt1(2002, 1, 1, 0, 0, 0);
   uint32_t start_2002 = dt1.unixtime();
   Serial.println(start_2002);
@@ -73,10 +85,13 @@ void loop()
   static unsigned long lastTime = 0;
 
   check_star();
+  check_Knopf();
 
   if (millis() - lastTime >= 1000)
+
   {
     lastTime = millis();
+    /*
     Serial.print("Tag: ");
     Serial.println(get_days_passed());
     Serial.print("Aufgang: ");
@@ -87,9 +102,92 @@ void loop()
     Serial.println(check_status(check_aufgang_sek(get_days_passed()), check_untergang_sek(get_days_passed())));
     Serial.print("Akteulle Sek:");
     Serial.println(get_seconds_passed_daily());
-
+    */
+    // print_time();
     // print_time_passed();
     // Serial.println(get_seconds_passed_daily());
+    display_idle('E');
+  }
+}
+
+void check_Knopf()
+{
+  static char puffer;
+  puffer = customKeypad.getKey();
+  if (puffer == 'A')
+  {
+    display_idle('A');
+  }
+  if (puffer == 'B')
+  {
+    display_idle('B');
+  }
+  if (puffer == 'C')
+  {
+    display_idle('C');
+  }
+  if (puffer == 'D')
+  {
+    display_idle('D');
+  }
+  
+}
+
+void display_idle(char Knopf)
+{
+
+  static zustaende idle_zustand = Knopf_A;
+  static char puffer = Knopf_A;
+  
+  if (Knopf != 'E')
+  {
+    puffer = Knopf;
+  }
+  
+  if (puffer == 'A')
+  {
+    idle_zustand = Knopf_A;
+  }
+  else if (puffer == 'B')
+  {
+    idle_zustand = Knopf_B;
+  }
+  else if (puffer == 'C')
+  {
+    idle_zustand = Knopf_C;
+  }
+  else if (puffer == 'D')
+  {
+    idle_zustand = Knopf_D;
+  }
+
+  switch (idle_zustand)
+  {
+  case Knopf_A:
+    
+    lcd.setCursor(0, 0);
+    lcd.print((String)"Uhrzeit:" + get_seconds_passed_daily() + "sek        ");
+    lcd.setCursor(0,1);
+    lcd.print((String)"Tag: " + get_days_passed() + "            ");
+    break;
+
+  case Knopf_B:
+   
+    lcd.setCursor(0, 0);
+    lcd.print("Idle B");
+    break;
+
+  case Knopf_C:
+    
+    lcd.setCursor(0, 0);
+    lcd.print("Idle C");
+    break;
+
+  case Knopf_D:
+    
+    lcd.setCursor(0, 0);
+    lcd.print("Idle D");
+    break;
   }
 }
 
@@ -114,8 +212,11 @@ void check_star()
 
   if (counter > 2)
   {
-    Serial.println("Einstellung aendern");
-    Serial.println("Drücke # um löschen zu bestätigen");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("RESET MENU!");
+    lcd.setCursor(0, 1);
+    lcd.print("USE '#' 4 RESET");
 
     if (customKeypad.waitForKey() == '#')
     {
@@ -137,26 +238,35 @@ void set_usertime()
   // erste Schleife für Jahr / Code
   do
   {
-    Serial.println("Modi code eingeben bsp. '2008'");
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Modi eingeben");
+    lcd.setCursor(0,1);
+    lcd.print("bsp.'2008' ");
 
     char user_time_code[5] = "2008";
 
     for (int i = 0; i < 4; i++)
     {
       user_time_code[i] = customKeypad.waitForKey();
-      Serial.print(user_time_code[i]);
+      lcd.print(user_time_code[i]);
     }
-    Serial.println();
-    Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1] + user_time_code[2] + user_time_code[3]);
+    lcd.clear();
+    lcd.print("Eingabe: "); lcd.print(user_time_code[0]); lcd.print(user_time_code[1]); lcd.print(user_time_code[2]); lcd.print(user_time_code[3]);
+    //Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1] + user_time_code[2] + user_time_code[3]);
 
     if (atoi(user_time_code) == 2002) // hier muss Funktion kommen die Checkt, ob der ModiCode auch wirklich  einen Modi hat.
     {
       set_process = 1;
       user_time.jahr = atoi(user_time_code);
+      lcd.setCursor(0,1);
+      lcd.print("Half Season");
+      delay(2000);
     }
     else
     {
-      Serial.println("CODE NICHT ERKANNT");
+      lcd.clear();
+      lcd.print("NOT FOUND!");
       delay(400);
     }
 
@@ -165,7 +275,11 @@ void set_usertime()
   // zweite Schleife für Stunde
   do
   {
-    Serial.println("Stunde Eingeben bsp'13'");
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("Stunde eingeben");
+    lcd.setCursor(0,1);
+    lcd.print("bsp.'13' ");
 
     char user_time_code[3] = "13";
 
@@ -367,7 +481,6 @@ uint32_t check_aufgang_sek(unsigned int days)
   }
   return 0;
 }
-
 
 uint32_t check_untergang_sek(unsigned int days)
 {
