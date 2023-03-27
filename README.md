@@ -1,5 +1,13 @@
 # Ferdinant
 
+## Verbesserungs Ideen
+
+- im reset menu waitForKey() durch andere L”sung ersetzen um Sicherheit zu erh”hen
+- Idle D bearbeiten
+- Modi 2012 implementiern
+  
+
+
 ## **Resetablauf / Einstellen eines anderen Modus**
 
 Da zwischen 2 Modis unterschieden werden muss, ist wichtig zu verstehen wie man den Modi richtig einstellt.
@@ -35,4 +43,7 @@ Ist der Code eingegebn wird nun nach der Uhrzeit (Stunde und Minute) gefragt. Hi
 <pre><code>Stunde eingeben
 Bsp. '13'
 </code></pre>
+
+
+
 
