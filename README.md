@@ -2,7 +2,7 @@
 
 ## Verbesserungs Ideen
 
-- im reset menu waitForKey() durch andere L”sung ersetzen um Sicherheit zu erh”hen
+- im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
 - Idle D bearbeiten
 - Modi 2012 implementiern
   
@@ -12,7 +12,7 @@
 
 Da zwischen 2 Modis unterschieden werden muss, ist wichtig zu verstehen wie man den Modi richtig einstellt.
 
-Nach dreimaligen drcken der Sternchen Taste   ` "*" `  auf dem Keypad, fragt das System, ob es einen Reset durch fhren soll. Welches mit ` "#"  ` best„tigt werden kann, mit dem Druck einer anderen Taste wird das Men automatischen wieder verlassen.
+Nach dreimaligen druecken der Sternchen Taste   ` "*" `  auf dem Keypad, fragt das System, ob es einen Reset durch fuehren soll. Welches mit ` "#"  ` bestaetigt werden kann, mit dem Druck einer anderen Taste wird das Menue automatischen wieder verlassen.
 
 
 
@@ -20,11 +20,11 @@ Nach dreimaligen drcken der Sternchen Taste   ` "*" `  auf dem Keypad, fragt da
 USE '#' 4 RESET
 </code></pre>
 
-Beachte, dass es m”glich ist zu jedem Zeitpunkt des Resetsablaufes, dass System kurz vom Strom zu entfernen um den Vorgang zu unterbrechen. Dadurch wird einfach der Zustand vor dem Resetablauf beibehalten.
+Beachte, dass es moeglich ist zu jedem Zeitpunkt des Resetsablaufes, dass System kurz vom Strom zu entfernen um den Vorgang zu unterbrechen. Dadurch wird einfach der Zustand vor dem Resetablauf beibehalten.
 
 ### *Modi Auswahl*
 
-Wird der Reset best„tigt ”ffnet sich, das Men das fragt welcher Modi ausgew„hlt werden soll. Dazu muss ein 4-stelliger Code eingegebn werden.
+Wird der Reset bestaetigt oeffnet sich, das Menue das fragt welcher Modi ausgewaehlt werden soll. Dazu muss ein 4-stelliger Code eingegebn werden.
 
 <pre><code>Modi eingeben
 Bsp. '2008'
@@ -37,8 +37,8 @@ Es tritt ein Fehler auf, wenn ein Code eingegben wird den das System nicht kennt
 
 ### *Setzen der Uhrzeit*
 
-Ist der Code eingegebn wird nun nach der Uhrzeit (Stunde und Minute) gefragt. Hier empfielt es sich die aktuelle Uhrzeit zu benutzen um die Steuerung der Tageszeit anzupassen. Natrlich ist eine andere Uhrzeit auch m”glich. <br />
-(Beacht: bei der eingabe einer einstelligen Zahl wird folgende Formatierung erwartet Bsp.: fr 6 Uhr msste **'06'** eingegeben werden, das selbe gilt fr die Minuten).
+Ist der Code eingegebn wird nun nach der Uhrzeit (Stunde und Minute) gefragt. Hier empfielt es sich die aktuelle Uhrzeit zu benutzen um die Steuerung der Tageszeit anzupassen. Natuerlich ist eine andere Uhrzeit auch moeglich. <br />
+(Beacht: bei der eingabe einer einstelligen Zahl wird folgende Formatierung erwartet Bsp.: fuer 6 Uhr muesste **'06'** eingegeben werden, das selbe gilt fuer die Minuten).
 
 <pre><code>Stunde eingeben
 Bsp. '13'
