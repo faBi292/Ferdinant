@@ -432,6 +432,7 @@ void set_usertime()
       user_time_code[i] = customKeypad.waitForKey();
       lcd.print(user_time_code[i]);
     }
+    
     delay(400);
     lcd.clear();
     lcd.print("Eingabe: ");
