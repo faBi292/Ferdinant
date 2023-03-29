@@ -12,7 +12,7 @@
 
 Da zwischen 2 Modis unterschieden werden muss, ist wichtig zu verstehen wie man den Modi richtig einstellt.
 
-Nach dreimaligen druecken der Sternchen Taste   ` "*" `  auf dem Keypad, fragt das System, ob es einen Reset durch fuehren soll. Welches mit ` "#"  ` bestaetigt werden kann, mit dem Druck einer anderen Taste wird das Menue automatischen wieder verlassen.
+Nach dreimaligen druecken der Sternchen Taste   ` "*" `  auf dem Keypad, fragt das System, ob es einen Reset durch fuehren soll. Welches mit ` "#" ` bestaetigt werden kann, mit dem Druck einer anderen Taste wird das Menue automatischen wieder verlassen.
 
 
 
