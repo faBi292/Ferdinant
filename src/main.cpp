@@ -279,7 +279,8 @@ void check_star()
     lcd.setCursor(0, 1);
     lcd.print("USE '#' 4 RESET");
 
-    if (customKeypad.waitForKey() == '#')
+
+    if (customKeypad.waitForKey() == '#')     //hier mÅsste eigentlich eine bessere Lîsung her
     {
       set_usertime();
       counter = 0;
