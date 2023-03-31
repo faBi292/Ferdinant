@@ -5,7 +5,9 @@
 - im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
 - Idle D bearbeiten
 - Modi 2012 implementiern
-  
+- energie_spar_modus
+- Fritzing steckplan
+- 3D Modell für Box
 
 
 ## **Resetablauf / Einstellen eines anderen Modus**
