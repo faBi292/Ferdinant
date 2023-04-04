@@ -8,6 +8,7 @@
 - energie_spar_modus
 - Fritzing steckplan
 - 3D Modell für Box
+- vielleicht mehr in Stunden und Minuten anzeigen statt Sekunden
 
 
 ## **Resetablauf / Einstellen eines anderen Modus**
