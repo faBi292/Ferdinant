@@ -2,13 +2,15 @@
 
 ## Verbesserungs Ideen
 
-- im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
 - Idle D bearbeiten
-- Modi 2012 implementiern
-- energie_spar_modus
-- Fritzing steckplan
+- energie_spar_modus (für LCD_Display)
 - 3D Modell für Box
 - vielleicht mehr in Stunden und Minuten anzeigen statt Sekunden
+
+- Fritzing steckplan
+- Modi 2012 implementiern
+- im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
+- Modi int durch Konstanten auswechseln, für mehr übersichtlichkeit im Code
 
 
 ## **Resetablauf / Einstellen eines anderen Modus**
