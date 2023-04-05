@@ -12,6 +12,8 @@
 - im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
 - Modi int durch Konstanten auswechseln, für mehr übersichtlichkeit im Code
 
+- Stealth Mode
+
 
 ## **Resetablauf / Einstellen eines anderen Modus**
 
