@@ -61,6 +61,9 @@ uint32_t check_aufgang_sek(unsigned int days);                  // Bekommt die v
 uint32_t check_untergang_sek(unsigned int days);                // Bekommt die vergangen Tage übergeben und gibt die Untergangsuhrzeit zurück
 void display_idle(char Knopf);                                  // Bekommt A,B,C,D übergebn und wechselt dann in den entsprechenden Modi
 void check_Knopf();                                             // Überprüft ob Knopf gedrückt wurde und ruft entsprechend die Funktion auf
+char[5] sec_to_hhmm(uint32_t);                                  // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
+
+
 
 void setup()
 {
@@ -280,7 +283,7 @@ void check_star()
     lcd.print("USE '#' 4 RESET");
 
 
-    if (customKeypad.waitForKey() == '#')     //hier m�sste eigentlich eine bessere L�sung her
+    if (customKeypad.waitForKey() == '#')     //hier m�sste eigentlich eine bessere L�sung her
     {
       set_usertime();
       counter = 0;
@@ -588,4 +591,18 @@ uint32_t check_untergang_sek(unsigned int days)
     return (uint32_t)(64800 + (3600 / 90) * (days - 1));
   }
   return 0;
+}
+
+char[5] sek_to_hhmm(uint32_t isek){
+
+  uint32_t nsek = isek % 60; //Berechnung überschüssiger Sekunden
+
+  uint32_t imin = (isek - nsek)/60; //Berechnung voller Minuten 
+
+  uint32_t nmin = imin % 60; //Berechnung überschüssiger minuten
+
+  uint32_t nhour = (imin - nmin)/60; //Berechnung der Stunden
+
+  return ((String) nhour + ":" + nmin);  
+
 }
