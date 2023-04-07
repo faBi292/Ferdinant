@@ -2,10 +2,13 @@
 #include <Keypad.h>
 #include <RTClib.h>
 #include <SPI.h>
-#include <Wire.h>
 #include <LiquidCrystal.h>
 
 RTC_DS3231 rtc;
+
+const int HALF_SEASON = 2002;
+const int FULL_SEASON = 2004;
+const int TROPICAL = 2006;
 
 const byte ROWS = 4; // four rows
 const byte COLS = 4; // four columns
@@ -61,9 +64,7 @@ uint32_t check_aufgang_sek(unsigned int days);                  // Bekommt die v
 uint32_t check_untergang_sek(unsigned int days);                // Bekommt die vergangen Tage übergeben und gibt die Untergangsuhrzeit zurück
 void display_idle(char Knopf);                                  // Bekommt A,B,C,D übergebn und wechselt dann in den entsprechenden Modi
 void check_Knopf();                                             // Überprüft ob Knopf gedrückt wurde und ruft entsprechend die Funktion auf
-char[5] sec_to_hhmm(uint32_t);                                  // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
-
-
+void secondsToTime(uint32_t seconds, char *timeString);              // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
 
 void setup()
 {
@@ -84,6 +85,7 @@ void setup()
 
   if (!rtc.begin())
   {
+    lcd.clear();
     lcd.println("RTC not found!");
     while (1)
       ;
@@ -91,10 +93,8 @@ void setup()
 
   pinMode(12, OUTPUT);
 
-
-  DateTime dt1(2002, 1, 1, 0, 0, 0);
-  uint32_t start_2002 = dt1.unixtime();
-  Serial.println(start_2002);
+  //DateTime dt1(2006, 1, 1, 0, 0, 0); //Findet den Offset raus
+  //Serial.println(dt1.unixtime());
 }
 
 void loop()
@@ -111,7 +111,7 @@ void loop()
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
     digitalWrite(12, LICHT_CHECK);
 
-    display_idle(' ');                                                                            // 9ms
+    display_idle(' '); // 9ms
   }
 }
 
@@ -174,14 +174,16 @@ void display_idle(char Knopf)
   static uint32_t aufgang_sek_tomorrow;
   static uint32_t untergang_sek_tomorrow;
   static uint32_t passed_seconds;
+  static char timeString[5];
   static long diff;
 
   switch (idle_zustand)
   {
   case Knopf_A:
-
+    
+    secondsToTime(get_seconds_passed_daily(), timeString);
     lcd.setCursor(0, 0);
-    lcd.print((String) "Uhrzeit:" + get_seconds_passed_daily() + "sek        ");
+    lcd.print((String) "Uhrzeit:" + timeString);
     lcd.setCursor(0, 1);
     lcd.print((String) "Tag:" + get_days_passed() + "   ");
     lcd.setCursor(7, 1);
@@ -245,9 +247,8 @@ void display_idle(char Knopf)
   case Knopf_D:
     DateTime now = rtc.now();
 
-
     lcd.setCursor(0, 0);
-    lcd.print((String) now.day() + "/" + now.month() + "/" + now.year() + " " + now.hour() + ":" + now.minute() + "        ");
+    lcd.print((String)now.day() + "/" + now.month() + "/" + now.year() + " " + now.hour() + ":" + now.minute() + "        ");
     lcd.setCursor(0, 1);
     lcd.print((String) "HEUTE:                   ");
 
@@ -282,8 +283,7 @@ void check_star()
     lcd.setCursor(0, 1);
     lcd.print("USE '#' 4 RESET");
 
-
-    if (customKeypad.waitForKey() == '#')     //hier m�sste eigentlich eine bessere L�sung her
+    if (customKeypad.waitForKey() == '#') // hier m�sste eigentlich eine bessere L�sung her
     {
       set_usertime();
       counter = 0;
@@ -325,12 +325,28 @@ void set_usertime()
     lcd.print(user_time_code[3]);
     // Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1] + user_time_code[2] + user_time_code[3]);
 
-    if (atoi(user_time_code) == 2002) // hier muss Funktion kommen die Checkt, ob der ModiCode auch wirklich  einen Modi hat.
+    if (atoi(user_time_code) == HALF_SEASON)
     {
       set_process = 1;
       user_time.jahr = atoi(user_time_code);
       lcd.setCursor(0, 1);
-      lcd.print("Half Season");
+      lcd.print("HALF SEASON");
+      delay(2000);
+    }
+    else if (atoi(user_time_code) == FULL_SEASON)
+    {
+      set_process = 1;
+      user_time.jahr = atoi(user_time_code);
+      lcd.setCursor(0, 1);
+      lcd.print("FULL SEASON");
+      delay(2000);
+    }
+    else if (atoi(user_time_code) == TROPICAL)
+    {
+      set_process = 1;
+      user_time.jahr = atoi(user_time_code);
+      lcd.setCursor(0, 1);
+      lcd.print("TROPICAL");
       delay(2000);
     }
     else
@@ -436,7 +452,7 @@ void set_usertime()
       user_time_code[i] = customKeypad.waitForKey();
       lcd.print(user_time_code[i]);
     }
-    
+
     delay(400);
     lcd.clear();
     lcd.print("Eingabe: ");
@@ -535,9 +551,18 @@ uint32_t get_offset()
   static DateTime now;
 
   now = rtc.now();
-  if (now.year() == 2002)
+
+  if (now.year() == HALF_SEASON)
   {
     return 1009843200;
+  }
+  if (now.year() == FULL_SEASON)
+  {
+    return 1072915200;
+  }
+  if (now.year() == TROPICAL)
+  {
+    return 1136073600;
   }
 
   return 0; // Falls es das Jahr nicht mehr geben sollte, könnte passieren wenn die Uhr lange nicht benutzt wird.
@@ -561,6 +586,8 @@ unsigned int get_days_passed()
     counter++;
   }
 
+
+
   return counter;
 }
 
@@ -574,9 +601,9 @@ uint32_t check_aufgang_sek(unsigned int days)
   static DateTime now;
 
   now = rtc.now();
-  if (now.year() == 2002)
+  if (now.year() == HALF_SEASON)
   {
-    return (uint32_t)(21600 - (3600 / 90) * (days - 1));
+    return (uint32_t)(21600 + (5400 / 80) * (days - 1));
   }
   return 0;
 }
@@ -586,23 +613,15 @@ uint32_t check_untergang_sek(unsigned int days)
   static DateTime now;
 
   now = rtc.now();
-  if (now.year() == 2002)
+  if (now.year() == HALF_SEASON)
   {
-    return (uint32_t)(64800 + (3600 / 90) * (days - 1));
+    return (uint32_t)(72000 - (5400 / 80) * (days - 1));
   }
   return 0;
 }
 
-char[5] sek_to_hhmm(uint32_t isek){
-
-  uint32_t nsek = isek % 60; //Berechnung überschüssiger Sekunden
-
-  uint32_t imin = (isek - nsek)/60; //Berechnung voller Minuten 
-
-  uint32_t nmin = imin % 60; //Berechnung überschüssiger minuten
-
-  uint32_t nhour = (imin - nmin)/60; //Berechnung der Stunden
-
-  return ((String) nhour + ":" + nmin);  
-
+void secondsToTime(uint32_t seconds, char *timeString) {
+  int hours = seconds / 3600;
+  int minutes = (seconds % 3600) / 60;
+  sprintf(timeString, "%02d:%02d", hours, minutes);
 }
