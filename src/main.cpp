@@ -67,7 +67,7 @@ void check_Knopf();                                             // Überprüft o
 void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
 void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
 void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
-uint32_t get_lightseconds();
+uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
 
 void setup()
 {
@@ -149,6 +149,7 @@ void display_idle(char Knopf)
   static DateTime now;
   static zustaende idle_zustand = Knopf_A;
   static char puffer = Knopf_A;
+  static char time_puffer[10];
 
   if (Knopf != ' ')
   {
@@ -172,13 +173,9 @@ void display_idle(char Knopf)
     idle_zustand = Knopf_D;
   }
 
-  static uint32_t aufgang_sek;
-  static uint32_t untergang_sek;
-  static uint32_t aufgang_sek_tomorrow;
-  static uint32_t untergang_sek_tomorrow;
-  static uint32_t passed_seconds;
-  char time_puffer[10];
-  static long diff;
+  
+ 
+ 
 
   switch (idle_zustand)
   {
