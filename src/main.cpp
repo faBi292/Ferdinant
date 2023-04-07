@@ -64,10 +64,10 @@ uint32_t check_aufgang_sek(unsigned int days);                  // Bekommt die v
 uint32_t check_untergang_sek(unsigned int days);                // Bekommt die vergangen Tage übergeben und gibt die Untergangsuhrzeit zurück
 void display_idle(char Knopf);                                  // Bekommt A,B,C,D übergebn und wechselt dann in den entsprechenden Modi
 void check_Knopf();                                             // Überprüft ob Knopf gedrückt wurde und ruft entsprechend die Funktion auf
-void secondsToTime(uint32_t seconds, char *timeString);              // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
-void secondsToHour(uint32_t seconds, char *timeString);
+void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
+void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
+void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
 uint32_t get_lightseconds();
-
 
 void setup()
 {
@@ -96,8 +96,8 @@ void setup()
 
   pinMode(12, OUTPUT);
 
-  //DateTime dt1(2006, 1, 1, 0, 0, 0); //Findet den Offset raus
-  //Serial.println(dt1.unixtime());
+  // DateTime dt1(2006, 1, 1, 0, 0, 0); //Findet den Offset raus
+  // Serial.println(dt1.unixtime());
 }
 
 void loop()
@@ -146,7 +146,7 @@ void check_Knopf()
 
 void display_idle(char Knopf)
 {
-
+  static DateTime now;
   static zustaende idle_zustand = Knopf_A;
   static char puffer = Knopf_A;
 
@@ -177,16 +177,16 @@ void display_idle(char Knopf)
   static uint32_t aufgang_sek_tomorrow;
   static uint32_t untergang_sek_tomorrow;
   static uint32_t passed_seconds;
-   char time_puffer[10];
+  char time_puffer[10];
   static long diff;
 
   switch (idle_zustand)
   {
   case Knopf_A:
 
-    secondsToTime(get_seconds_passed_daily(), time_puffer);
+    secondsToFullTime(get_seconds_passed_daily(), time_puffer);
     lcd.setCursor(0, 0);
-    lcd.print((String) "Uhrzeit: " + time_puffer);
+    lcd.print((String) "Uhrzeit:" + time_puffer + "    ");
     lcd.setCursor(0, 1);
     lcd.print((String) "Tag:" + get_days_passed() + "   ");
     lcd.setCursor(8, 1);
@@ -196,53 +196,42 @@ void display_idle(char Knopf)
 
   case Knopf_B:
 
+    secondsToFullTime(check_aufgang_sek(get_days_passed()), time_puffer);
     lcd.setCursor(0, 0);
-    lcd.print((String) "Rising: " + check_aufgang_sek(get_days_passed()) + "   ");
+    lcd.print((String) "Rising: " + time_puffer + "   ");
+    secondsToFullTime(check_untergang_sek(get_days_passed()), time_puffer);
     lcd.setCursor(0, 1);
-    lcd.print((String) "Dawn  : " + check_untergang_sek(get_days_passed()) + "   ");
+    lcd.print((String) "Dawn  : " + time_puffer + "   ");
     break;
 
   case Knopf_C:
 
-    aufgang_sek = check_aufgang_sek(days_passed);
-    aufgang_sek_tomorrow = check_aufgang_sek(days_passed + 1);
-    untergang_sek = check_untergang_sek(days_passed);
-    untergang_sek_tomorrow = check_untergang_sek(days_passed + 1);
-    passed_seconds = get_seconds_passed_daily();
+    now = rtc.now();
 
-    lcd.clear();
     lcd.setCursor(0, 0);
-    if ((aufgang_sek > passed_seconds) && (untergang_sek > passed_seconds))
+    lcd.print((String) "Cycle: " + now.year() + "      ");
+    lcd.setCursor(0, 1);
+    if (now.year() == HALF_SEASON)
     {
-      diff = (long)(aufgang_sek - passed_seconds);
-      lcd.print((String) "RISE IN: " + diff + "     ");
-      lcd.setCursor(0, 1);
-      diff = (long)(untergang_sek - passed_seconds);
-      lcd.print((String) "DAWN IN: " + diff + "     ");
+     lcd.print("Half Season  80d  ");
     }
-
-    else if ((aufgang_sek < passed_seconds) && (untergang_sek > passed_seconds))
+    else if (now.year() == FULL_SEASON)
     {
-      diff = (long)(86400 - passed_seconds + aufgang_sek_tomorrow);
-      lcd.print((String) "RISE IN: " + diff + "     ");
-      lcd.setCursor(0, 1);
-      diff = (long)(untergang_sek - passed_seconds);
-      lcd.print((String) "DAWN IN: " + diff + "     ");
+      lcd.print("Full Season 120d ");
     }
-
-    else if ((aufgang_sek < passed_seconds) && (untergang_sek < passed_seconds))
+    else if (now.year() == TROPICAL)
     {
-      diff = (long)(86400 - passed_seconds + aufgang_sek_tomorrow);
-      lcd.print((String) "RISE IN: " + diff + "     ");
-      lcd.setCursor(0, 1);
-      diff = (long)(86400 - passed_seconds + untergang_sek_tomorrow);
-      lcd.print((String) "DAWN IN: " + diff + "     ");
+      lcd.print("Tropical    100d " );
+    }
+    else
+    {
+      lcd.print("NO MODE          ");
     }
 
     break;
 
   case Knopf_D:
-    DateTime now = rtc.now();
+    now = rtc.now();
 
     lcd.setCursor(0, 0);
     lcd.print((String)now.day() + "/" + now.month() + "/" + now.year() + " " + now.hour() + ":" + now.minute() + "        ");
@@ -583,8 +572,6 @@ unsigned int get_days_passed()
     counter++;
   }
 
-
-
   return counter;
 }
 
@@ -617,20 +604,31 @@ uint32_t check_untergang_sek(unsigned int days)
   return 0;
 }
 
-void secondsToTime(uint32_t seconds, char *timeString) {
+void secondsToTime(uint32_t seconds, char *timeString)
+{
   int hours = seconds / 3600;
   int minutes = (seconds % 3600) / 60;
   sprintf(timeString, "%02d:%02d", hours, minutes);
 }
 
-void secondsToHour(uint32_t seconds, char *timeString) {
-  float hours = (float) seconds / 3600.0;
-  int wholeHours = (int) hours;
-  int decimalHours = (int) (hours * 10) % 10;
+void secondsToFullTime(uint32_t seconds, char *timeString)
+{
+  int hours = seconds / 3600;
+  int minutes = (seconds % 3600) / 60;
+  int sec = seconds % 60;
+  sprintf(timeString, "%02d:%02d:%02d", hours, minutes, sec);
+}
+
+void secondsToHour(uint32_t seconds, char *timeString)
+{
+  float hours = (float)seconds / 3600.0;
+  int wholeHours = (int)hours;
+  int decimalHours = (int)(hours * 10) % 10;
   sprintf(timeString, "%02d.%01d", wholeHours, decimalHours);
 }
 
-uint32_t get_lightseconds(){
+uint32_t get_lightseconds()
+{
   static uint32_t days;
 
   days = get_days_passed();
@@ -643,12 +641,11 @@ uint32_t get_lightseconds(){
     }
     else
     {
-      return (check_untergang_sek(days) - check_aufgang_sek(days)); //Bei NACHT
+      return (check_untergang_sek(days) - check_aufgang_sek(days)); // Bei NACHT
     }
   }
   else
   {
-    return 0; //AM Morgen
+    return 0; // AM Morgen
   }
-
 }
