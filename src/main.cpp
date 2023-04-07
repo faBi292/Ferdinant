@@ -65,6 +65,9 @@ uint32_t check_untergang_sek(unsigned int days);                // Bekommt die v
 void display_idle(char Knopf);                                  // Bekommt A,B,C,D übergebn und wechselt dann in den entsprechenden Modi
 void check_Knopf();                                             // Überprüft ob Knopf gedrückt wurde und ruft entsprechend die Funktion auf
 void secondsToTime(uint32_t seconds, char *timeString);              // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
+void secondsToHour(uint32_t seconds, char *timeString);
+uint32_t get_lightseconds();
+
 
 void setup()
 {
@@ -174,27 +177,21 @@ void display_idle(char Knopf)
   static uint32_t aufgang_sek_tomorrow;
   static uint32_t untergang_sek_tomorrow;
   static uint32_t passed_seconds;
-  static char timeString[5];
+   char time_puffer[10];
   static long diff;
 
   switch (idle_zustand)
   {
   case Knopf_A:
-    
-    secondsToTime(get_seconds_passed_daily(), timeString);
+
+    secondsToTime(get_seconds_passed_daily(), time_puffer);
     lcd.setCursor(0, 0);
-    lcd.print((String) "Uhrzeit:" + timeString);
+    lcd.print((String) "Uhrzeit: " + time_puffer);
     lcd.setCursor(0, 1);
     lcd.print((String) "Tag:" + get_days_passed() + "   ");
-    lcd.setCursor(7, 1);
-    if (LICHT_CHECK == 1)
-    {
-      lcd.print("  LED:AN  ");
-    }
-    else
-    {
-      lcd.print("  LED:AUS  ");
-    }
+    lcd.setCursor(8, 1);
+    secondsToHour(get_lightseconds(), time_puffer);
+    lcd.print((String) "LH:" + time_puffer + "h        ");
     break;
 
   case Knopf_B:
@@ -624,4 +621,34 @@ void secondsToTime(uint32_t seconds, char *timeString) {
   int hours = seconds / 3600;
   int minutes = (seconds % 3600) / 60;
   sprintf(timeString, "%02d:%02d", hours, minutes);
+}
+
+void secondsToHour(uint32_t seconds, char *timeString) {
+  float hours = (float) seconds / 3600.0;
+  int wholeHours = (int) hours;
+  int decimalHours = (int) (hours * 10) % 10;
+  sprintf(timeString, "%02d.%01d", wholeHours, decimalHours);
+}
+
+uint32_t get_lightseconds(){
+  static uint32_t days;
+
+  days = get_days_passed();
+
+  if (get_seconds_passed_daily() > check_aufgang_sek(days))
+  {
+    if (get_seconds_passed_daily() < check_untergang_sek(days))
+    {
+      return (get_seconds_passed_daily() - check_aufgang_sek(days)); // Wenn noch TAG
+    }
+    else
+    {
+      return (check_untergang_sek(days) - check_aufgang_sek(days)); //Bei NACHT
+    }
+  }
+  else
+  {
+    return 0; //AM Morgen
+  }
+
 }
