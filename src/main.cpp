@@ -173,10 +173,6 @@ void display_idle(char Knopf)
     idle_zustand = Knopf_D;
   }
 
-  
- 
- 
-
   switch (idle_zustand)
   {
   case Knopf_A:
@@ -210,7 +206,7 @@ void display_idle(char Knopf)
     lcd.setCursor(0, 1);
     if (now.year() == HALF_SEASON)
     {
-     lcd.print("Half Season  80d  ");
+      lcd.print("Half Season  80d  ");
     }
     else if (now.year() == FULL_SEASON)
     {
@@ -218,7 +214,7 @@ void display_idle(char Knopf)
     }
     else if (now.year() == TROPICAL)
     {
-      lcd.print("Tropical    100d " );
+      lcd.print("Tropical    100d ");
     }
     else
     {
@@ -580,13 +576,66 @@ void increaseDateTime(DateTime &dt, int days)
 uint32_t check_aufgang_sek(unsigned int days)
 {
   static DateTime now;
+  static unsigned int days;
 
+  days = get_days_passed();
   now = rtc.now();
+
   if (now.year() == HALF_SEASON)
   {
     return (uint32_t)(21600 + (5400 / 80) * (days - 1));
   }
-  return 0;
+  
+  if (now.year() == FULL_SEASON)
+  {
+    return 0; // TODO
+  }
+
+  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  {
+    if (days < 10)
+    {
+      return 0;
+    }
+    else if (days < 20)
+    {
+      return 0;
+    }
+    else if (days < 30)
+    {
+      return 0;
+    }
+    else if (days < 40)
+    {
+      return 0;
+    }
+    else if (days < 50)
+    {
+      return 0;
+    }
+    else if (days < 60)
+    {
+      return 0;
+    }
+    else if (days < 80)
+    {
+      return 0;
+    }
+    else if (days < 90)
+    {
+      return 0;
+    }
+    else if (days < 100)
+    {
+      return 0;
+    }
+    else if (days >= 100)
+    {
+      return 0;
+    }
+  }
+
+  return 0; //Falls keine der Funktionen greift
 }
 
 uint32_t check_untergang_sek(unsigned int days)
@@ -598,6 +647,56 @@ uint32_t check_untergang_sek(unsigned int days)
   {
     return (uint32_t)(72000 - (5400 / 80) * (days - 1));
   }
+
+  if (now.year() == FULL_SEASON)
+  {
+    return 0; // TODO
+  }
+
+  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  {
+    if (days < 10)
+    {
+      return 0;
+    }
+    else if (days < 20)
+    {
+      return 0;
+    }
+    else if (days < 30)
+    {
+      return 0;
+    }
+    else if (days < 40)
+    {
+      return 0;
+    }
+    else if (days < 50)
+    {
+      return 0;
+    }
+    else if (days < 60)
+    {
+      return 0;
+    }
+    else if (days < 80)
+    {
+      return 0;
+    }
+    else if (days < 90)
+    {
+      return 0;
+    }
+    else if (days < 100)
+    {
+      return 0;
+    }
+    else if (days >= 100)
+    {
+      return 0;
+    }
+  }
+
   return 0;
 }
 
