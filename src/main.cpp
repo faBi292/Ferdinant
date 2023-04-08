@@ -68,6 +68,8 @@ void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekun
 void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
 void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
 uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
+void check_Energie();
+
 
 void setup()
 {
@@ -744,4 +746,22 @@ uint32_t get_lightseconds()
   {
     return 0; // AM Morgen
   }
+}
+
+void check_Energie(){
+  static uint32_t current_millis = 0;
+  uint32_t previous_millis;
+
+  current_millis = millis();
+
+  if(current_millis - previous_millis >= 50000){
+
+    lcd.noBacklight();
+
+  }else{
+    lcd.backlight();
+    previous_millis = current_millis;
+  }
+
+
 }
