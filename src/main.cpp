@@ -107,7 +107,7 @@ void loop()
   static unsigned long lastTime_1000 = 0;
 
   check_Knopf();
-
+  
   if (millis() - lastTime_1000 >= 1000)
   {
     lastTime_1000 = millis(); // setzt Schleife zurück
@@ -115,7 +115,7 @@ void loop()
     days_passed = get_days_passed();
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
     digitalWrite(12, LICHT_CHECK);
-
+    check_Energie();
     display_idle(' '); // 9ms
   }
 }
@@ -748,17 +748,17 @@ uint32_t get_lightseconds()
 
 void check_Energie(){
   static uint32_t current_millis = 0;
-  uint32_t previous_millis;
+  uint32_t previous_millis = 0;
 
   current_millis = millis();
 
   if(current_millis - previous_millis >= 50000){
 
     lcd.noBacklight();
-
+    Serial.println("NO BACKLIGHT");
   }else{
     lcd.backlight();
-    previous_millis = current_millis;
+    
   }
 
 
