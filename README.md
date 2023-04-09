@@ -8,7 +8,7 @@
 
 - Fritzing steckplan
 - im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
-- Funktionsverläufe programmieren
+- Funktionsverläufe programmieren (Struktur steht)
 
 - Stealth Mode
 

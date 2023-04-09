@@ -578,9 +578,7 @@ void increaseDateTime(DateTime &dt, int days)
 uint32_t check_aufgang_sek(unsigned int days)
 {
   static DateTime now;
-  static unsigned int days;
-
-  days = get_days_passed();
+  
   now = rtc.now();
 
   if (now.year() == HALF_SEASON)
