@@ -102,7 +102,7 @@ void setup()
 
   pinMode(12, OUTPUT);
 
-  //for (int i = 1; i < 121; i++){Serial.println((String) i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));}
+  for (int i = 1; i < 121; i++){Serial.println((String) i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));}
   // DateTime dt1(2006, 1, 1, 0, 0, 0); //Findet den Offset raus
   // Serial.println(dt1.unixtime());
 }
@@ -612,11 +612,11 @@ uint32_t check_aufgang_sek(unsigned int days)
     }
     else if (days <= 20)
     {
-      return (uint32_t)(21600 + (1800 / 10) * (days - 1));
+      return (uint32_t)(21600 + (1800 / 10) * (days - 10));
     }
     else if (days <= 40)
     {
-      return (uint32_t)(23400 + (1800 / 20) * (days - 1));
+      return (uint32_t)(23400 + (1800 / 20) * (days - 20));
     }
     else if (days <= 80)
     {
@@ -624,7 +624,7 @@ uint32_t check_aufgang_sek(unsigned int days)
     }
     else if (days <= 100)
     {
-      return (uint32_t)(25200 + (1800 / 20) * (days - 1));
+      return (uint32_t)(25200 + (1800 / 20) * (days - 80));
     }
     else if (days > 100)
     {
@@ -663,11 +663,11 @@ uint32_t check_untergang_sek(unsigned int days)
     }
     else if (days <= 20)
     {
-      return (uint32_t)(68400 - (1800 / 10) * (days - 1));
+      return (uint32_t)(68400 - (1800 / 10) * (days - 10));
     }
     else if (days <= 40)
     {
-      return (uint32_t)(66600 - (1800 / 20) * (days - 1));
+      return (uint32_t)(66600 - (1800 / 20) * (days - 20));
     }
     else if (days <= 80)
     {
@@ -675,11 +675,11 @@ uint32_t check_untergang_sek(unsigned int days)
     }
     else if (days <= 100)
     {
-      return (uint32_t)(63000 - (1800 / 20) * (days - 1));
+      return (uint32_t)(64800 - (1800 / 20) * (days - 80));
     }
     else if (days > 100)
     {
-      return (uint32_t)(64800);
+      return (uint32_t)(63000);
     }
   }
   return 0;
