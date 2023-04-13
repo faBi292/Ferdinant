@@ -3,6 +3,9 @@
 #include <RTClib.h>
 #include <SPI.h>
 #include <LiquidCrystal.h>
+#include <RCSwitch.h>
+
+RCSwitch mySwitch = RCSwitch();
 
 RTC_DS3231 rtc;
 
@@ -68,6 +71,7 @@ void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekun
 void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
 void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
 uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
+void transmit_data(int state);                  
 
 void setup()
 {
@@ -82,6 +86,10 @@ void setup()
   delay(300);
   lcd.print(".");
   delay(300);
+
+  mySwitch.enableTransmit(3);
+  mySwitch.setPulseLength(321); // 321ms
+  mySwitch.setProtocol(1);
 
   Wire.begin();
   rtc.begin();
@@ -113,7 +121,7 @@ void loop()
     days_passed = get_days_passed();
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
     digitalWrite(12, LICHT_CHECK);
-
+    transmit_data(LICHT_CHECK);
     display_idle(' '); // 9ms
   }
 }
@@ -173,10 +181,6 @@ void display_idle(char Knopf)
     idle_zustand = Knopf_D;
   }
 
-  
- 
- 
-
   switch (idle_zustand)
   {
   case Knopf_A:
@@ -210,7 +214,7 @@ void display_idle(char Knopf)
     lcd.setCursor(0, 1);
     if (now.year() == HALF_SEASON)
     {
-     lcd.print("Half Season  80d  ");
+      lcd.print("Half Season  80d  ");
     }
     else if (now.year() == FULL_SEASON)
     {
@@ -218,7 +222,7 @@ void display_idle(char Knopf)
     }
     else if (now.year() == TROPICAL)
     {
-      lcd.print("Tropical    100d " );
+      lcd.print("Tropical    100d ");
     }
     else
     {
@@ -645,4 +649,21 @@ uint32_t get_lightseconds()
   {
     return 0; // AM Morgen
   }
+}
+
+void transmit_data(int state)
+{
+  if (state == 1)
+  {
+    mySwitch.send("000000000001010100010001"); // D AN
+    mySwitch.send("000000000001010100010001");
+    mySwitch.send("000000000001010100010001");
+  }
+  else if (state == 0)
+  {
+    mySwitch.send("000000000001010100010100"); // D AUS
+    mySwitch.send("000000000001010100010100");
+    mySwitch.send("000000000001010100010100");
+  }
+  return 0;
 }
