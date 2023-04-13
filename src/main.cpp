@@ -5,13 +5,13 @@
 #include <LiquidCrystal.h>
 #include <RCSwitch.h>
 
-RCSwitch mySwitch = RCSwitch();
-
-RTC_DS3231 rtc;
+#include "sun_shine_time.h"
 
 const int HALF_SEASON = 2002;
 const int FULL_SEASON = 2004;
 const int TROPICAL = 2006;
+
+
 
 const byte ROWS = 4; // four rows
 const byte COLS = 4; // four columns
@@ -54,29 +54,15 @@ int LICHT_CHECK;      // Sagt aus ob Licht an sein muss
 unsigned days_passed; // Vergangene Tage beginnend bei 1
 char getKey_puffer;   // zuletzt eingegebene Taste wird hier gespeichert
 
-void set_usertime();                                            // Ermöglicht den Benutzer seine Einstellung vorzunehmen.
+void set_usertime();                                            // Erm├╢glicht den Benutzer seine Einstellung vorzunehmen.
 void print_time();                                              // Printed die aktuelle Uhrzeit der Uhr
 void print_time_passed();                                       // Printed die verstrichene Zeit seit anfang der Einstellung.
 unsigned int get_days_passed();                                 // Berechnet die verstrichenen Tage seit anfang der Einstellung.
-uint32_t get_seconds_passed_daily();                            // Berechnet die verstrichenen Sekunden seit 0 Uhr.
-int check_status(uint32_t aufgang_sek, uint32_t untergang_sek); // gibt 1 für Licht muss an sein und 0 für Licht muss aus sein.
-uint32_t get_offset();                                          // Berechnet den Offset in bezug zu 1970 zu dem jeweiligen start datum der einstellung. Bsp sekunden von 1970 bis 2002
-void increaseDateTime(DateTime &dt, int days);                  // Erhöht das Datum einer DateTime Variablen um eine Anzahl von Tagen
-void check_star();                                              // Überprüft ob die Sternchentaste gedrückt geahlten wird, nach 3 Sekunden führt sie dann set_usertime() aus.
-uint32_t check_aufgang_sek(unsigned int days);                  // Bekommt die vergangen Tage übergeben und gibt die Aufgangsuhrzeit zurück
-uint32_t check_untergang_sek(unsigned int days);                // Bekommt die vergangen Tage übergeben und gibt die Untergangsuhrzeit zurück
-void display_idle(char Knopf);                                  // Bekommt A,B,C,D übergebn und wechselt dann in den entsprechenden Modi
-void check_Knopf();                                             // Überprüft ob Knopf gedrückt wurde und ruft entsprechend die Funktion auf
-void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
-void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
-void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
-uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
-<<<<<<< HEAD
-void transmit_data(int state);                  
-=======
-void check_Energie();
-
->>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
+int check_status(uint32_t aufgang_sek, uint32_t untergang_sek); // gibt 1 f├╝r Licht muss an sein und 0 f├╝r Licht muss aus sein.
+void check_star();                                              // ├£berpr├╝ft ob die Sternchentaste gedr├╝ckt geahlten wird, nach 3 Sekunden f├╝hrt sie dann set_usertime() aus.
+void display_idle(char Knopf);                                  // Bekommt A,B,C,D ├╝bergebn und wechselt dann in den entsprechenden Modi
+void check_Knopf();                                             // ├£berpr├╝ft ob Knopf gedr├╝ckt wurde und ruft entsprechend die Funktion auf
+//void transmit_data(int state);                  
 
 void setup()
 {
@@ -121,16 +107,14 @@ void loop()
   
   if (millis() - lastTime_1000 >= 1000)
   {
-    lastTime_1000 = millis(); // setzt Schleife zurück
+    lastTime_1000 = millis(); // setzt Schleife zur├╝ck
 
     days_passed = get_days_passed();
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
     digitalWrite(12, LICHT_CHECK);
-<<<<<<< HEAD
+
     transmit_data(LICHT_CHECK);
-=======
-    check_Energie();
->>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
+
     display_idle(' '); // 9ms
   }
 }
@@ -279,7 +263,7 @@ void check_star()
     lcd.setCursor(0, 1);
     lcd.print("USE '#' 4 RESET");
 
-    if (customKeypad.waitForKey() == '#') // hier m�sste eigentlich eine bessere L�sung her
+    if (customKeypad.waitForKey() == '#') // hier m∩┐╜sste eigentlich eine bessere L∩┐╜sung her
     {
       set_usertime();
       counter = 0;
@@ -296,7 +280,7 @@ void set_usertime()
   int set_process = 0;   // Zaehler Variable
   time_struct user_time; // Defeniert neuen Zeit Speicher
 
-  // erste Schleife für Jahr / Code
+  // erste Schleife f├╝r Jahr / Code
   do
   {
     lcd.clear();
@@ -354,7 +338,7 @@ void set_usertime()
 
   } while (set_process == 0);
 
-  // zweite Schleife für Stunde
+  // zweite Schleife f├╝r Stunde
   do
   {
     lcd.clear();
@@ -392,7 +376,7 @@ void set_usertime()
 
   } while (set_process == 1);
 
-  // dritte Schleife für Minuten
+  // dritte Schleife f├╝r Minuten
   do
   {
     lcd.clear();
@@ -432,7 +416,7 @@ void set_usertime()
 
   } while (set_process == 2);
 
-  // vierte Schleife für Tage
+  // vierte Schleife f├╝r Tage
   do
   {
     lcd.clear();
@@ -511,18 +495,6 @@ void print_time_passed()
   Serial.println(now.unixtime() - sekunden_offset);
 }
 
-uint32_t get_seconds_passed_daily()
-{
-  static DateTime now;
-  static uint32_t sekunden_passed_day;
-
-  now = rtc.now();
-
-  sekunden_passed_day = (now.unixtime() - get_offset()) % (86400); // 86400 = 60*60*24
-
-  return sekunden_passed_day;
-}
-
 int check_status(uint32_t aufgang_sek, uint32_t untergang_sek)
 {
   if ((get_seconds_passed_daily() > aufgang_sek))
@@ -540,28 +512,6 @@ int check_status(uint32_t aufgang_sek, uint32_t untergang_sek)
   {
     return 0;
   }
-}
-
-uint32_t get_offset()
-{
-  static DateTime now;
-
-  now = rtc.now();
-
-  if (now.year() == HALF_SEASON)
-  {
-    return 1009843200;
-  }
-  if (now.year() == FULL_SEASON)
-  {
-    return 1072915200;
-  }
-  if (now.year() == TROPICAL)
-  {
-    return 1136073600;
-  }
-
-  return 0; // Falls es das Jahr nicht mehr geben sollte, könnte passieren wenn die Uhr lange nicht benutzt wird.
 }
 
 unsigned int get_days_passed()
@@ -585,184 +535,7 @@ unsigned int get_days_passed()
   return counter;
 }
 
-void increaseDateTime(DateTime &dt, int days)
-{
-  dt = dt + TimeSpan(days, 0, 0, 0);
-}
-
-uint32_t check_aufgang_sek(unsigned int days)
-{
-  static DateTime now;
-  
-  now = rtc.now();
-
-  if (now.year() == HALF_SEASON)
-  {
-    return (uint32_t)(21600 + (5400 / 80) * (days - 1));
-  }
-  
-  if (now.year() == FULL_SEASON)
-  {
-    return 0; // TODO
-  }
-
-  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
-  {
-    if (days < 10)
-    {
-      return 0;
-    }
-    else if (days < 20)
-    {
-      return 0;
-    }
-    else if (days < 30)
-    {
-      return 0;
-    }
-    else if (days < 40)
-    {
-      return 0;
-    }
-    else if (days < 50)
-    {
-      return 0;
-    }
-    else if (days < 60)
-    {
-      return 0;
-    }
-    else if (days < 80)
-    {
-      return 0;
-    }
-    else if (days < 90)
-    {
-      return 0;
-    }
-    else if (days < 100)
-    {
-      return 0;
-    }
-    else if (days >= 100)
-    {
-      return 0;
-    }
-  }
-
-  return 0; //Falls keine der Funktionen greift
-}
-
-uint32_t check_untergang_sek(unsigned int days)
-{
-  static DateTime now;
-
-  now = rtc.now();
-  if (now.year() == HALF_SEASON)
-  {
-    return (uint32_t)(72000 - (5400 / 80) * (days - 1));
-  }
-
-  if (now.year() == FULL_SEASON)
-  {
-    return 0; // TODO
-  }
-
-  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
-  {
-    if (days < 10)
-    {
-      return 0;
-    }
-    else if (days < 20)
-    {
-      return 0;
-    }
-    else if (days < 30)
-    {
-      return 0;
-    }
-    else if (days < 40)
-    {
-      return 0;
-    }
-    else if (days < 50)
-    {
-      return 0;
-    }
-    else if (days < 60)
-    {
-      return 0;
-    }
-    else if (days < 80)
-    {
-      return 0;
-    }
-    else if (days < 90)
-    {
-      return 0;
-    }
-    else if (days < 100)
-    {
-      return 0;
-    }
-    else if (days >= 100)
-    {
-      return 0;
-    }
-  }
-
-  return 0;
-}
-
-void secondsToTime(uint32_t seconds, char *timeString)
-{
-  int hours = seconds / 3600;
-  int minutes = (seconds % 3600) / 60;
-  sprintf(timeString, "%02d:%02d", hours, minutes);
-}
-
-void secondsToFullTime(uint32_t seconds, char *timeString)
-{
-  int hours = seconds / 3600;
-  int minutes = (seconds % 3600) / 60;
-  int sec = seconds % 60;
-  sprintf(timeString, "%02d:%02d:%02d", hours, minutes, sec);
-}
-
-void secondsToHour(uint32_t seconds, char *timeString)
-{
-  float hours = (float)seconds / 3600.0;
-  int wholeHours = (int)hours;
-  int decimalHours = (int)(hours * 10) % 10;
-  sprintf(timeString, "%02d.%01d", wholeHours, decimalHours);
-}
-
-uint32_t get_lightseconds()
-{
-  static uint32_t days;
-
-  days = get_days_passed();
-
-  if (get_seconds_passed_daily() > check_aufgang_sek(days))
-  {
-    if (get_seconds_passed_daily() < check_untergang_sek(days))
-    {
-      return (get_seconds_passed_daily() - check_aufgang_sek(days)); // Wenn noch TAG
-    }
-    else
-    {
-      return (check_untergang_sek(days) - check_aufgang_sek(days)); // Bei NACHT
-    }
-  }
-  else
-  {
-    return 0; // AM Morgen
-  }
-}
-
-<<<<<<< HEAD
-void transmit_data(int state)
+/*void transmit_data(int state)
 {
   if (state == 1)
   {
@@ -777,22 +550,5 @@ void transmit_data(int state)
     mySwitch.send("000000000001010100010100");
   }
   return 0;
-=======
-void check_Energie(){
-  static uint32_t current_millis = 0;
-  uint32_t previous_millis = 0;
 
-  current_millis = millis();
-
-  if(current_millis - previous_millis >= 50000){
-
-    lcd.noBacklight();
-    Serial.println("NO BACKLIGHT");
-  }else{
-    lcd.backlight();
-    
-  }
-
-
->>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
-}
+}*/
