@@ -71,7 +71,12 @@ void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekun
 void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
 void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
 uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
+<<<<<<< HEAD
 void transmit_data(int state);                  
+=======
+void check_Energie();
+
+>>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
 
 void setup()
 {
@@ -113,7 +118,7 @@ void loop()
   static unsigned long lastTime_1000 = 0;
 
   check_Knopf();
-
+  
   if (millis() - lastTime_1000 >= 1000)
   {
     lastTime_1000 = millis(); // setzt Schleife zurück
@@ -121,7 +126,11 @@ void loop()
     days_passed = get_days_passed();
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
     digitalWrite(12, LICHT_CHECK);
+<<<<<<< HEAD
     transmit_data(LICHT_CHECK);
+=======
+    check_Energie();
+>>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
     display_idle(' '); // 9ms
   }
 }
@@ -584,13 +593,64 @@ void increaseDateTime(DateTime &dt, int days)
 uint32_t check_aufgang_sek(unsigned int days)
 {
   static DateTime now;
-
+  
   now = rtc.now();
+
   if (now.year() == HALF_SEASON)
   {
     return (uint32_t)(21600 + (5400 / 80) * (days - 1));
   }
-  return 0;
+  
+  if (now.year() == FULL_SEASON)
+  {
+    return 0; // TODO
+  }
+
+  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  {
+    if (days < 10)
+    {
+      return 0;
+    }
+    else if (days < 20)
+    {
+      return 0;
+    }
+    else if (days < 30)
+    {
+      return 0;
+    }
+    else if (days < 40)
+    {
+      return 0;
+    }
+    else if (days < 50)
+    {
+      return 0;
+    }
+    else if (days < 60)
+    {
+      return 0;
+    }
+    else if (days < 80)
+    {
+      return 0;
+    }
+    else if (days < 90)
+    {
+      return 0;
+    }
+    else if (days < 100)
+    {
+      return 0;
+    }
+    else if (days >= 100)
+    {
+      return 0;
+    }
+  }
+
+  return 0; //Falls keine der Funktionen greift
 }
 
 uint32_t check_untergang_sek(unsigned int days)
@@ -602,6 +662,56 @@ uint32_t check_untergang_sek(unsigned int days)
   {
     return (uint32_t)(72000 - (5400 / 80) * (days - 1));
   }
+
+  if (now.year() == FULL_SEASON)
+  {
+    return 0; // TODO
+  }
+
+  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  {
+    if (days < 10)
+    {
+      return 0;
+    }
+    else if (days < 20)
+    {
+      return 0;
+    }
+    else if (days < 30)
+    {
+      return 0;
+    }
+    else if (days < 40)
+    {
+      return 0;
+    }
+    else if (days < 50)
+    {
+      return 0;
+    }
+    else if (days < 60)
+    {
+      return 0;
+    }
+    else if (days < 80)
+    {
+      return 0;
+    }
+    else if (days < 90)
+    {
+      return 0;
+    }
+    else if (days < 100)
+    {
+      return 0;
+    }
+    else if (days >= 100)
+    {
+      return 0;
+    }
+  }
+
   return 0;
 }
 
@@ -651,6 +761,7 @@ uint32_t get_lightseconds()
   }
 }
 
+<<<<<<< HEAD
 void transmit_data(int state)
 {
   if (state == 1)
@@ -666,4 +777,22 @@ void transmit_data(int state)
     mySwitch.send("000000000001010100010100");
   }
   return 0;
+=======
+void check_Energie(){
+  static uint32_t current_millis = 0;
+  uint32_t previous_millis = 0;
+
+  current_millis = millis();
+
+  if(current_millis - previous_millis >= 50000){
+
+    lcd.noBacklight();
+    Serial.println("NO BACKLIGHT");
+  }else{
+    lcd.backlight();
+    
+  }
+
+
+>>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
 }
