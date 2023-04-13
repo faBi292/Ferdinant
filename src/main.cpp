@@ -3,9 +3,6 @@
 #include <RTClib.h>
 #include <SPI.h>
 #include <LiquidCrystal.h>
-#include <RCSwitch.h>
-
-RCSwitch mySwitch = RCSwitch();
 
 RTC_DS3231 rtc;
 
@@ -71,12 +68,8 @@ void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekun
 void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
 void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
 uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
-<<<<<<< HEAD
-void transmit_data(int state);                  
-=======
-void check_Energie();
 
->>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
+// void transmit_data(int state);
 
 void setup()
 {
@@ -92,9 +85,9 @@ void setup()
   lcd.print(".");
   delay(300);
 
-  mySwitch.enableTransmit(3);
+  /*mySwitch.enableTransmit(3);
   mySwitch.setPulseLength(321); // 321ms
-  mySwitch.setProtocol(1);
+  mySwitch.setProtocol(1);*/
 
   Wire.begin();
   rtc.begin();
@@ -109,6 +102,7 @@ void setup()
 
   pinMode(12, OUTPUT);
 
+  //for (int i = 1; i < 121; i++){Serial.println((String) i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));}
   // DateTime dt1(2006, 1, 1, 0, 0, 0); //Findet den Offset raus
   // Serial.println(dt1.unixtime());
 }
@@ -118,7 +112,7 @@ void loop()
   static unsigned long lastTime_1000 = 0;
 
   check_Knopf();
-  
+
   if (millis() - lastTime_1000 >= 1000)
   {
     lastTime_1000 = millis(); // setzt Schleife zurück
@@ -126,11 +120,9 @@ void loop()
     days_passed = get_days_passed();
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
     digitalWrite(12, LICHT_CHECK);
-<<<<<<< HEAD
-    transmit_data(LICHT_CHECK);
-=======
-    check_Energie();
->>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
+
+    // transmit_data(LICHT_CHECK);
+
     display_idle(' '); // 9ms
   }
 }
@@ -593,64 +585,53 @@ void increaseDateTime(DateTime &dt, int days)
 uint32_t check_aufgang_sek(unsigned int days)
 {
   static DateTime now;
-  
+
   now = rtc.now();
 
   if (now.year() == HALF_SEASON)
   {
-    return (uint32_t)(21600 + (5400 / 80) * (days - 1));
+    if(days > 80){
+      return (uint32_t)(27000);
+    }
+    return (uint32_t)(21600 + (5400 / 79.0) * (days - 1)); // Von 6:00 -> 7:30
   }
-  
+
   if (now.year() == FULL_SEASON)
   {
-    return 0; // TODO
+    if(days > 120){
+      return (uint32_t)(27000);
+    }
+    return (uint32_t)(18000 + (9000 / 119.0) * (days - 1)); // Von 5:00 -> 7:30
   }
 
-  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
   {
-    if (days < 10)
+    if (days <= 10)
     {
-      return 0;
+      return (uint32_t)(21600);
     }
-    else if (days < 20)
+    else if (days <= 20)
     {
-      return 0;
+      return (uint32_t)(21600 + (1800 / 10) * (days - 1));
     }
-    else if (days < 30)
+    else if (days <= 40)
     {
-      return 0;
+      return (uint32_t)(23400 + (1800 / 20) * (days - 1));
     }
-    else if (days < 40)
+    else if (days <= 80)
     {
-      return 0;
+      return (uint32_t)(25200);
     }
-    else if (days < 50)
+    else if (days <= 100)
     {
-      return 0;
+      return (uint32_t)(25200 + (1800 / 20) * (days - 1));
     }
-    else if (days < 60)
+    else if (days > 100)
     {
-      return 0;
-    }
-    else if (days < 80)
-    {
-      return 0;
-    }
-    else if (days < 90)
-    {
-      return 0;
-    }
-    else if (days < 100)
-    {
-      return 0;
-    }
-    else if (days >= 100)
-    {
-      return 0;
+      return (uint32_t)(27000);
     }
   }
-
-  return 0; //Falls keine der Funktionen greift
+  return 0;
 }
 
 uint32_t check_untergang_sek(unsigned int days)
@@ -660,58 +641,47 @@ uint32_t check_untergang_sek(unsigned int days)
   now = rtc.now();
   if (now.year() == HALF_SEASON)
   {
-    return (uint32_t)(72000 - (5400 / 80) * (days - 1));
+    if(days > 80){
+      return (uint32_t)(66600);
+    }
+    return (uint32_t)(72000 - (5400 / 79.0) * (days - 1)); // Von 20:00 -> 18:30
   }
 
   if (now.year() == FULL_SEASON)
   {
-    return 0; // TODO
+    if(days > 120){
+      return (uint32_t)(66600);
+    }
+    return (uint32_t)(75600 - (9000 / 119.0) * (days - 1)); // Von 21:00 -> 18:30
   }
 
-  if (now.year() == TROPICAL) //Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
   {
-    if (days < 10)
+    if (days <= 10)
     {
-      return 0;
+      return (uint32_t)(68400);
     }
-    else if (days < 20)
+    else if (days <= 20)
     {
-      return 0;
+      return (uint32_t)(68400 - (1800 / 10) * (days - 1));
     }
-    else if (days < 30)
+    else if (days <= 40)
     {
-      return 0;
+      return (uint32_t)(66600 - (1800 / 20) * (days - 1));
     }
-    else if (days < 40)
+    else if (days <= 80)
     {
-      return 0;
+      return (uint32_t)(64800);
     }
-    else if (days < 50)
+    else if (days <= 100)
     {
-      return 0;
+      return (uint32_t)(63000 - (1800 / 20) * (days - 1));
     }
-    else if (days < 60)
+    else if (days > 100)
     {
-      return 0;
-    }
-    else if (days < 80)
-    {
-      return 0;
-    }
-    else if (days < 90)
-    {
-      return 0;
-    }
-    else if (days < 100)
-    {
-      return 0;
-    }
-    else if (days >= 100)
-    {
-      return 0;
+      return (uint32_t)(64800);
     }
   }
-
   return 0;
 }
 
@@ -761,8 +731,7 @@ uint32_t get_lightseconds()
   }
 }
 
-<<<<<<< HEAD
-void transmit_data(int state)
+/*void transmit_data(int state)
 {
   if (state == 1)
   {
@@ -777,22 +746,5 @@ void transmit_data(int state)
     mySwitch.send("000000000001010100010100");
   }
   return 0;
-=======
-void check_Energie(){
-  static uint32_t current_millis = 0;
-  uint32_t previous_millis = 0;
 
-  current_millis = millis();
-
-  if(current_millis - previous_millis >= 50000){
-
-    lcd.noBacklight();
-    Serial.println("NO BACKLIGHT");
-  }else{
-    lcd.backlight();
-    
-  }
-
-
->>>>>>> 9ebc9ab4676cd44e3c36d1ab8faf14cbe86c8a73
-}
+}*/
