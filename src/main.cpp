@@ -2,7 +2,8 @@
 #include <Keypad.h>
 #include <RTClib.h>
 #include <SPI.h>
-#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
 RTC_DS3231 rtc;
 
@@ -36,8 +37,9 @@ typedef struct
 
 } time_struct;
 
-const int rs = A0, en = A1, d4 = A2, d5 = A3, d6 = 10, d7 = 11;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+//const int rs = A0, en = A1, d4 = A2, d5 = A3, d6 = 10, d7 = 11;
+//LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address, number of columns and rows
 
 enum zustaende
 {
@@ -75,7 +77,8 @@ void setup()
 {
   Serial.begin(57600); // Initialise the serial monitor
 
-  lcd.begin(16, 2);
+  lcd.init();  
+  lcd.backlight();     
   lcd.print("Loading");
   delay(300);
   lcd.print(".");
@@ -185,7 +188,7 @@ void display_idle(char Knopf)
   switch (idle_zustand)
   {
   case Knopf_A:
-
+  
     secondsToFullTime(get_seconds_passed_daily(), time_puffer);
     lcd.setCursor(0, 0);
     lcd.print((String) "Uhrzeit:" + time_puffer + "    ");
