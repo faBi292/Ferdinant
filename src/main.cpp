@@ -4,8 +4,10 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+#include <RCSwitch.h>
 
 RTC_DS3231 rtc;
+RCSwitch mySwitch;
 
 const int HALF_SEASON = 2002;
 const int FULL_SEASON = 2004;
@@ -37,8 +39,8 @@ typedef struct
 
 } time_struct;
 
-//const int rs = A0, en = A1, d4 = A2, d5 = A3, d6 = 10, d7 = 11;
-//LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+// const int rs = A0, en = A1, d4 = A2, d5 = A3, d6 = 10, d7 = 11;
+// LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address, number of columns and rows
 
 enum zustaende
@@ -71,14 +73,18 @@ void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekun
 void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
 uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
 
+void init_RCSwitch(int PIN, int PulseLength);
+void steckdose_on();
+void steckdose_off();
+
 // void transmit_data(int state);
 
 void setup()
 {
   Serial.begin(57600); // Initialise the serial monitor
 
-  lcd.init();  
-  lcd.backlight();     
+  lcd.init();
+  lcd.backlight();
   lcd.print("Loading");
   delay(300);
   lcd.print(".");
@@ -88,12 +94,12 @@ void setup()
   lcd.print(".");
   delay(300);
 
-  /*mySwitch.enableTransmit(3);
-  mySwitch.setPulseLength(321); // 321ms
-  mySwitch.setProtocol(1);*/
+  // init_RCSwitch(10, 321); //Initialisiert das RCSwitch Modul
 
   Wire.begin();
   rtc.begin();
+
+  init_RCSwitch(10, 450);
 
   if (!rtc.begin())
   {
@@ -105,7 +111,10 @@ void setup()
 
   pinMode(12, OUTPUT);
 
-  for (int i = 1; i < 121; i++){Serial.println((String) i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));}
+  for (int i = 1; i < 121; i++)
+  {
+    Serial.println((String)i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));
+  }
   // DateTime dt1(2006, 1, 1, 0, 0, 0); //Findet den Offset raus
   // Serial.println(dt1.unixtime());
 }
@@ -113,6 +122,7 @@ void setup()
 void loop()
 {
   static unsigned long lastTime_1000 = 0;
+  static unsigned long lastTime_3000 = 0;
 
   check_Knopf();
 
@@ -123,10 +133,25 @@ void loop()
     days_passed = get_days_passed();
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
     digitalWrite(12, LICHT_CHECK);
-
-    // transmit_data(LICHT_CHECK);
+    // steckdose_on(3);
+    //  transmit_data(LICHT_CHECK);
 
     display_idle(' '); // 9ms
+  }
+  if (millis() - lastTime_3000 >= 5000)
+  {
+    lastTime_3000 = millis(); // setzt Schleife zurück
+    static boolean status = 0;
+    status = !status;
+    if (status)
+    {
+
+      steckdose_on();
+    }
+    else
+    {
+      steckdose_off();
+    }
   }
 }
 
@@ -188,7 +213,7 @@ void display_idle(char Knopf)
   switch (idle_zustand)
   {
   case Knopf_A:
-  
+
     secondsToFullTime(get_seconds_passed_daily(), time_puffer);
     lcd.setCursor(0, 0);
     lcd.print((String) "Uhrzeit:" + time_puffer + "    ");
@@ -593,7 +618,8 @@ uint32_t check_aufgang_sek(unsigned int days)
 
   if (now.year() == HALF_SEASON)
   {
-    if(days > 80){
+    if (days > 80)
+    {
       return (uint32_t)(27000);
     }
     return (uint32_t)(21600 + (5400 / 79.0) * (days - 1)); // Von 6:00 -> 7:30
@@ -601,7 +627,8 @@ uint32_t check_aufgang_sek(unsigned int days)
 
   if (now.year() == FULL_SEASON)
   {
-    if(days > 120){
+    if (days > 120)
+    {
       return (uint32_t)(27000);
     }
     return (uint32_t)(18000 + (9000 / 119.0) * (days - 1)); // Von 5:00 -> 7:30
@@ -644,7 +671,8 @@ uint32_t check_untergang_sek(unsigned int days)
   now = rtc.now();
   if (now.year() == HALF_SEASON)
   {
-    if(days > 80){
+    if (days > 80)
+    {
       return (uint32_t)(66600);
     }
     return (uint32_t)(72000 - (5400 / 79.0) * (days - 1)); // Von 20:00 -> 18:30
@@ -652,7 +680,8 @@ uint32_t check_untergang_sek(unsigned int days)
 
   if (now.year() == FULL_SEASON)
   {
-    if(days > 120){
+    if (days > 120)
+    {
       return (uint32_t)(66600);
     }
     return (uint32_t)(75600 - (9000 / 119.0) * (days - 1)); // Von 21:00 -> 18:30
@@ -751,3 +780,26 @@ uint32_t get_lightseconds()
   return 0;
 
 }*/
+
+void init_RCSwitch(int PIN, int PulseLength)
+{
+  mySwitch = RCSwitch();
+  mySwitch.enableTransmit(PIN);
+  mySwitch.setPulseLength(PulseLength);
+  mySwitch.setProtocol(1);
+}
+
+void steckdose_on()
+{
+  mySwitch.send("000000000001010100010001"); // Steckdose einschalten
+  mySwitch.send("000000000001010100010001"); // Steckdose einschalten
+  mySwitch.send("000000000001010100010001"); // Steckdose einschalten
+}
+
+void steckdose_off()
+{
+
+  mySwitch.send("000000000001010100010100"); // Steckdose ausschalten
+  mySwitch.send("000000000001010100010100"); // Steckdose ausschalten
+  mySwitch.send("000000000001010100010100"); // Steckdose ausschalten
+}
