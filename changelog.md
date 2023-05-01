@@ -1,5 +1,8 @@
 # CHANGELOG.md
 
+## v1.2
+- Offical Release
+
 ## v1.1-beta (01-05-2023)
 
 - Modi's Angepasst 2002,2004,2006,
