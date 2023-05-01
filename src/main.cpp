@@ -77,6 +77,8 @@ void init_RCSwitch(int PIN, int PulseLength);
 void steckdose_on();
 void steckdose_off();
 
+void lcd_energiesparen(int timer_reset);   //Steuert die Hitnergrundbeleuchtung
+
 // void transmit_data(int state);
 
 void setup()
@@ -84,7 +86,8 @@ void setup()
   Serial.begin(57600); // Initialise the serial monitor
 
   lcd.init();
-  lcd.backlight();
+  lcd_energiesparen(1);
+
   lcd.print("Loading");
   delay(300);
   lcd.print(".");
@@ -135,17 +138,16 @@ void loop()
     digitalWrite(12, LICHT_CHECK);
     // steckdose_on(3);
     //  transmit_data(LICHT_CHECK);
-
+    lcd_energiesparen(0);
     display_idle(' '); // 9ms
   }
+
   if (millis() - lastTime_3000 >= 5000)
   {
     lastTime_3000 = millis(); // setzt Schleife zurück
     static boolean status = 0;
-    status = !status;
-    if (status)
+    if (LICHT_CHECK)
     {
-
       steckdose_on();
     }
     else
@@ -159,6 +161,9 @@ void check_Knopf()
 {
   getKey_puffer = customKeypad.getKey();
 
+  if(getKey_puffer){
+    lcd_energiesparen(1);
+  }
   if (getKey_puffer == 'A')
   {
     display_idle('A');
@@ -791,15 +796,30 @@ void init_RCSwitch(int PIN, int PulseLength)
 
 void steckdose_on()
 {
-  mySwitch.send("000000000001010100010001"); // Steckdose einschalten
-  mySwitch.send("000000000001010100010001"); // Steckdose einschalten
-  mySwitch.send("000000000001010100010001"); // Steckdose einschalten
+    mySwitch.sendTriState("00000FFF0F0F"); //Steckdose Einschalten
+    mySwitch.sendTriState("00000FFF0F0F");
 }
 
 void steckdose_off()
 {
 
-  mySwitch.send("000000000001010100010100"); // Steckdose ausschalten
-  mySwitch.send("000000000001010100010100"); // Steckdose ausschalten
-  mySwitch.send("000000000001010100010100"); // Steckdose ausschalten
+    mySwitch.sendTriState("00000FFF0FF0"); //Steckdose Ausschalten
+    mySwitch.sendTriState("00000FFF0FF0");
+}
+
+void lcd_energiesparen(int timer_reset){
+  static uint16_t last_millis = 0;
+  static uint16_t delta = 0;
+  
+  if (timer_reset == 1){
+    last_millis = millis();
+    lcd.backlight();
+  }
+  delta = millis() - last_millis;
+
+  if(delta > 10000){
+    lcd.noBacklight();
+  }
+
+
 }
