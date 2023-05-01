@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## v1.2
+## v1.2 (01-05.2023)
 - Offical Release
 
 ## v1.1-beta (01-05-2023)
