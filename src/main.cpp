@@ -74,10 +74,9 @@ void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekun
 uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
 
 void init_RCSwitch(int PIN, int PulseLength);
-void steckdose_on();
-void steckdose_off();
+void steckdose_on(int state); // Kann Steckdose ein und ausschalten 1:EIN / 0:AUS
 
-void lcd_energiesparen(int timer_reset);   //Steuert die Hitnergrundbeleuchtung
+void lcd_energiesparen(int timer_reset); // Steuert die Hitnergrundbeleuchtung
 
 // void transmit_data(int state);
 
@@ -114,10 +113,10 @@ void setup()
 
   pinMode(12, OUTPUT);
 
-  for (int i = 1; i < 121; i++)
+  /*for (int i = 1; i < 121; i++)
   {
     Serial.println((String)i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));
-  }
+  }*/
   // DateTime dt1(2006, 1, 1, 0, 0, 0); //Findet den Offset raus
   // Serial.println(dt1.unixtime());
 }
@@ -125,34 +124,51 @@ void setup()
 void loop()
 {
   static unsigned long lastTime_1000 = 0;
-  static unsigned long lastTime_3000 = 0;
+  static unsigned long lastTime_5000 = 0;
 
   check_Knopf();
 
   if (millis() - lastTime_1000 >= 1000)
   {
+    static boolean status = 0; //Gibt an ob die Initialsendung nach Switch schon erfolgt ist
+
     lastTime_1000 = millis(); // setzt Schleife zurück
 
+
     days_passed = get_days_passed();
+
+
     LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
+
+
     digitalWrite(12, LICHT_CHECK);
-    // steckdose_on(3);
-    //  transmit_data(LICHT_CHECK);
-    lcd_energiesparen(0);
+
+    if (LICHT_CHECK != status)
+    {
+      status = LICHT_CHECK;
+      for (int i = 0; i < 8; i++)
+      {
+        steckdose_on(LICHT_CHECK);
+      }
+    }
+
+    lcd_energiesparen(0); //Aktualisiert die energiespar Funktion
+
+
     display_idle(' '); // 9ms
   }
 
-  if (millis() - lastTime_3000 >= 5000)
+  if (millis() - lastTime_5000 >= 5000)
   {
-    lastTime_3000 = millis(); // setzt Schleife zurück
-    static boolean status = 0;
+    lastTime_5000 = millis(); // setzt Schleife zurück
+
     if (LICHT_CHECK)
     {
-      steckdose_on();
+      steckdose_on(1);
     }
     else
     {
-      steckdose_off();
+      steckdose_on(0);
     }
   }
 }
@@ -161,7 +177,8 @@ void check_Knopf()
 {
   getKey_puffer = customKeypad.getKey();
 
-  if(getKey_puffer){
+  if (getKey_puffer)
+  {
     lcd_energiesparen(1);
   }
   if (getKey_puffer == 'A')
@@ -497,6 +514,7 @@ void set_usertime()
 
   } while (set_process == 3);
 
+  lcd_energiesparen(1);
   lcd.clear();
   lcd.print("SUCCESS");
   lcd.setCursor(0, 1);
@@ -794,32 +812,34 @@ void init_RCSwitch(int PIN, int PulseLength)
   mySwitch.setProtocol(1);
 }
 
-void steckdose_on()
+void steckdose_on(int state)
 {
-    mySwitch.sendTriState("00000FFF0F0F"); //Steckdose Einschalten
+  if (state == 1)
+  {
+    mySwitch.sendTriState("00000FFF0F0F"); // Steckdose Einschalten
     mySwitch.sendTriState("00000FFF0F0F");
-}
-
-void steckdose_off()
-{
-
-    mySwitch.sendTriState("00000FFF0FF0"); //Steckdose Ausschalten
+  }
+  else
+  {
+    mySwitch.sendTriState("00000FFF0FF0"); // Steckdose Ausschalten
     mySwitch.sendTriState("00000FFF0FF0");
+  }
 }
 
-void lcd_energiesparen(int timer_reset){
+void lcd_energiesparen(int timer_reset)
+{
   static uint16_t last_millis = 0;
   static uint16_t delta = 0;
-  
-  if (timer_reset == 1){
+
+  if (timer_reset == 1)
+  {
     last_millis = millis();
     lcd.backlight();
   }
   delta = millis() - last_millis;
 
-  if(delta > 10000){
+  if (delta > 30000) //Macht nach 30 Sekunden wieder die Hintergrundbeleuchtung AUS
+  {
     lcd.noBacklight();
   }
-
-
 }

@@ -3,12 +3,10 @@
 ## Verbesserungs Ideen
 
 - Idle D bearbeiten
-- energie_spar_modus (für LCD_Display)
 - 3D Modell für Box
 
 - Fritzing steckplan
 - im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
-- Funktionsverläufe programmieren (Struktur steht)
 
 - Stealth Mode
 ## Tri-State Codes
