@@ -11,7 +11,11 @@
 - Funktionsverläufe programmieren (Struktur steht)
 
 - Stealth Mode
-
+## Tri-State Codes
+<pre><code>AN = mySwitch.sendTriState("00000FFF0F0F");
+</code></pre>
+<pre><code>AUS = mySwitch.sendTriState("00000FFF0FF0");
+</code></pre>
 
 ## **Resetablauf / Einstellen eines anderen Modus**
 
