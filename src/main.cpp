@@ -132,14 +132,12 @@ void setup()
 void loop()
 {
   static unsigned long lastTime_1000 = 0;
-  static unsigned long lastTime_5000 = 0;
   static unsigned long lastTime_30000 = 0;
 
   check_Knopf();
 
   if (millis() - lastTime_1000 >= 1000)
   {
-    static boolean status = 0; // Gibt an ob die Initialsendung nach Switch schon erfolgt ist
 
     lastTime_1000 = millis(); // setzt Schleife zurück
 
@@ -149,6 +147,13 @@ void loop()
     digitalWrite(Green_LED_PIN, LICHT_CHECK_intern);
     LICHT_CHECK_extern = licht_check_photosensor();
 
+    static boolean status = !LICHT_CHECK_intern; // Gibt an ob die Initialsendung nach Switch schon erfolgt ist
+    if (status != LICHT_CHECK_intern)
+    {
+      status = LICHT_CHECK_intern;
+      steckdose_on(LICHT_CHECK_intern);
+    }
+
     if (LICHT_CHECK_extern != LICHT_CHECK_intern)
     {
       digitalWrite(Yellow_LED_PIN, HIGH);
@@ -158,28 +163,11 @@ void loop()
     {
       digitalWrite(Yellow_LED_PIN, LOW);
     }
-
-    Serial.print(" A0:");
-    Serial.println(analogRead(A0));
 
     lcd_energiesparen(0); // Aktualisiert die energiespar Funktion
 
     display_idle(' '); // 9ms
   }
-
-  /* if (millis() - lastTime_5000 >= 5000) // Setzt alle 30 Sekunden Signal raus
-  {
-    lastTime_5000 = millis(); // setzt Schleife zurück
-    if (LICHT_CHECK_extern != LICHT_CHECK_intern)
-    {
-      digitalWrite(Yellow_LED_PIN, HIGH);
-      steckdose_on(LICHT_CHECK_intern);
-    }
-    else
-    {
-      digitalWrite(Yellow_LED_PIN, LOW);
-    }
-  } */
 
   if (millis() - lastTime_30000 >= 30000) // Setzt alle 30 Sekunden Signal raus
   {
@@ -835,29 +823,21 @@ void init_RCSwitch(int PIN, int PulseLength)
 {
   mySwitch = RCSwitch();
   mySwitch.enableTransmit(PIN);
-  //mySwitch.setPulseLength(PulseLength);
-  mySwitch.setProtocol(1);
+  mySwitch.setPulseLength(PulseLength);
+  // mySwitch.setProtocol(1);
 }
 
 void steckdose_on(int state)
 {
   if (state == 1)
   { // Steckdose Einschalten
-    /*mySwitch.sendTriState("00000FFF0F0F");
-     mySwitch.sendTriState("00000FFF0F11");
     mySwitch.sendTriState("00000FFF0F0F");
-    mySwitch.sendTriState("00000FFF0F00");
-    mySwitch.sendTriState("00000FFF0F0F"); */
-    mySwitch.send(5393,24);
+    // mySwitch.send(5393, 24);
   }
   else
   { // Steckdose Ausschalten
-/*  mySwitch.sendTriState("00000FFF0FF0");
-    mySwitch.sendTriState("00000FFF0F11");
     mySwitch.sendTriState("00000FFF0FF0");
-    mySwitch.sendTriState("00000FFF0F00");
-    mySwitch.sendTriState("00000FFF0FF0");  */
-    mySwitch.send(5396,24);
+    // mySwitch.send(5396,24);
   }
 }
 
