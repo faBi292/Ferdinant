@@ -6,6 +6,10 @@
 #include <LiquidCrystal_I2C.h>
 #include <RCSwitch.h>
 
+#define Yellow_LED_PIN 2
+#define Green_LED_PIN 3
+#define RC_PIN 4
+
 RTC_DS3231 rtc;
 RCSwitch mySwitch;
 
@@ -23,8 +27,8 @@ char hexaKeys[ROWS][COLS] = {
     {'7', '8', '9', 'C'},
     {'*', '0', '#', 'D'}};
 
-byte colPins[ROWS] = {2, 3, 4, 5}; // Pins used for the rows of the keypad
-byte rowPins[COLS] = {6, 7, 8, 9}; // Pins used for the columns of the keypad
+byte colPins[ROWS] = {5, 6, 7, 8};    // Pins used for the rows of the keypad
+byte rowPins[COLS] = {9, 10, 11, 12}; // Pins used for the columns of the keypad
 
 // Initialise the Keypad
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
@@ -98,12 +102,10 @@ void setup()
   lcd.print(".");
   delay(300);
 
-  // init_RCSwitch(10, 321); //Initialisiert das RCSwitch Modul
-
   Wire.begin();
   rtc.begin();
 
-  init_RCSwitch(10, 450);
+  init_RCSwitch(RC_PIN, 324);
 
   if (!rtc.begin())
   {
@@ -113,10 +115,13 @@ void setup()
       ;
   }
 
-  pinMode(12, OUTPUT); // Grüne LED
-  pinMode(A0, INPUT);  // Licht_Sensor
+  pinMode(Yellow_LED_PIN, OUTPUT); // Gelbe LED
+  pinMode(Green_LED_PIN, OUTPUT);  // Grüne LED
 
-  /*for (int i = 1; i < 121; i++)
+  pinMode(A0, INPUT); // Licht_Sensor
+
+  /*digitalWrite(Yellow_LED_PIN, HIGH);
+  for (int i = 1; i < 121; i++)
   {
     Serial.println((String)i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));
   }*/
@@ -128,6 +133,7 @@ void loop()
 {
   static unsigned long lastTime_1000 = 0;
   static unsigned long lastTime_5000 = 0;
+  static unsigned long lastTime_30000 = 0;
 
   check_Knopf();
 
@@ -140,16 +146,17 @@ void loop()
     days_passed = get_days_passed();
 
     LICHT_CHECK_intern = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
+    digitalWrite(Green_LED_PIN, LICHT_CHECK_intern);
+    LICHT_CHECK_extern = licht_check_photosensor();
 
-    digitalWrite(12, LICHT_CHECK_intern);
-
-    if (LICHT_CHECK_intern != status)
+    if (LICHT_CHECK_extern != LICHT_CHECK_intern)
     {
-      status = LICHT_CHECK_intern;
-      for (int i = 0; i < 8; i++)
-      {
-        steckdose_on(LICHT_CHECK_intern);
-      }
+      digitalWrite(Yellow_LED_PIN, HIGH);
+      steckdose_on(LICHT_CHECK_intern);
+    }
+    else
+    {
+      digitalWrite(Yellow_LED_PIN, LOW);
     }
 
     Serial.print(" A0:");
@@ -160,9 +167,23 @@ void loop()
     display_idle(' '); // 9ms
   }
 
-  if (millis() - lastTime_5000 >= 5000)
+  /* if (millis() - lastTime_5000 >= 5000) // Setzt alle 30 Sekunden Signal raus
   {
     lastTime_5000 = millis(); // setzt Schleife zurück
+    if (LICHT_CHECK_extern != LICHT_CHECK_intern)
+    {
+      digitalWrite(Yellow_LED_PIN, HIGH);
+      steckdose_on(LICHT_CHECK_intern);
+    }
+    else
+    {
+      digitalWrite(Yellow_LED_PIN, LOW);
+    }
+  } */
+
+  if (millis() - lastTime_30000 >= 30000) // Setzt alle 30 Sekunden Signal raus
+  {
+    lastTime_30000 = millis(); // setzt Schleife zurück
 
     if (LICHT_CHECK_intern)
     {
@@ -290,12 +311,10 @@ void display_idle(char Knopf)
 
     brightness_precent = analogRead(A0) * 100.0 / 1024.0;
 
-    
-
     lcd.setCursor(0, 0);
-    lcd.print((String)"Glow: " + brightness_precent + "%           ");
+    lcd.print((String) "Glow: " + brightness_precent + "%           ");
     lcd.setCursor(0, 1);
-    
+
     lcd.print((String) "                         ");
 
     break;
@@ -816,27 +835,29 @@ void init_RCSwitch(int PIN, int PulseLength)
 {
   mySwitch = RCSwitch();
   mySwitch.enableTransmit(PIN);
-  mySwitch.setPulseLength(PulseLength);
+  //mySwitch.setPulseLength(PulseLength);
   mySwitch.setProtocol(1);
 }
 
 void steckdose_on(int state)
 {
   if (state == 1)
-  {
-    mySwitch.sendTriState("00000FFF0F0F"); // Steckdose Einschalten
-    mySwitch.sendTriState("00000FFF0F11");
+  { // Steckdose Einschalten
+    /*mySwitch.sendTriState("00000FFF0F0F");
+     mySwitch.sendTriState("00000FFF0F11");
     mySwitch.sendTriState("00000FFF0F0F");
     mySwitch.sendTriState("00000FFF0F00");
-    mySwitch.sendTriState("00000FFF0F0F");
+    mySwitch.sendTriState("00000FFF0F0F"); */
+    mySwitch.send(5393,24);
   }
   else
-  {
-    mySwitch.sendTriState("00000FFF0FF0"); // Steckdose Ausschalten
+  { // Steckdose Ausschalten
+/*  mySwitch.sendTriState("00000FFF0FF0");
     mySwitch.sendTriState("00000FFF0F11");
     mySwitch.sendTriState("00000FFF0FF0");
     mySwitch.sendTriState("00000FFF0F00");
-    mySwitch.sendTriState("00000FFF0FF0");
+    mySwitch.sendTriState("00000FFF0FF0");  */
+    mySwitch.send(5396,24);
   }
 }
 
@@ -866,8 +887,8 @@ int licht_check_photosensor()
   {
     return 1;
   }
-  else if (puffer < 500){
+  else if (puffer < 500)
+  {
     return 0;
   }
-    
 }
