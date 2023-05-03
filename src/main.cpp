@@ -51,9 +51,10 @@ enum zustaende
   Knopf_D,
 };
 
-int LICHT_CHECK;      // Sagt aus ob Licht an sein muss
-unsigned days_passed; // Vergangene Tage beginnend bei 1
-char getKey_puffer;   // zuletzt eingegebene Taste wird hier gespeichert
+int LICHT_CHECK_intern; // Sagt aus ob Licht an sein muss
+int LICHT_CHECK_extern; // Sagt aus ob Licht gerade an ist via. Photosensor
+unsigned days_passed;   // Vergangene Tage beginnend bei 1
+char getKey_puffer;     // zuletzt eingegebene Taste wird hier gespeichert
 
 void set_usertime();                                            // Ermöglicht den Benutzer seine Einstellung vorzunehmen.
 void print_time();                                              // Printed die aktuelle Uhrzeit der Uhr
@@ -77,12 +78,13 @@ void init_RCSwitch(int PIN, int PulseLength);
 void steckdose_on(int state); // Kann Steckdose ein und ausschalten 1:EIN / 0:AUS
 
 void lcd_energiesparen(int timer_reset); // Steuert die Hitnergrundbeleuchtung
+int licht_check_photosensor();
 
 // void transmit_data(int state);
 
 void setup()
 {
-  Serial.begin(57600); // Initialise the serial monitor
+  Serial.begin(9600); // Initialise the serial monitor
 
   lcd.init();
   lcd_energiesparen(1);
@@ -111,7 +113,8 @@ void setup()
       ;
   }
 
-  pinMode(12, OUTPUT);
+  pinMode(12, OUTPUT); // Grüne LED
+  pinMode(A0, INPUT);  // Licht_Sensor
 
   /*for (int i = 1; i < 121; i++)
   {
@@ -130,30 +133,29 @@ void loop()
 
   if (millis() - lastTime_1000 >= 1000)
   {
-    static boolean status = 0; //Gibt an ob die Initialsendung nach Switch schon erfolgt ist
+    static boolean status = 0; // Gibt an ob die Initialsendung nach Switch schon erfolgt ist
 
     lastTime_1000 = millis(); // setzt Schleife zurück
 
-
     days_passed = get_days_passed();
 
+    LICHT_CHECK_intern = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
 
-    LICHT_CHECK = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
+    digitalWrite(12, LICHT_CHECK_intern);
 
-
-    digitalWrite(12, LICHT_CHECK);
-
-    if (LICHT_CHECK != status)
+    if (LICHT_CHECK_intern != status)
     {
-      status = LICHT_CHECK;
+      status = LICHT_CHECK_intern;
       for (int i = 0; i < 8; i++)
       {
-        steckdose_on(LICHT_CHECK);
+        steckdose_on(LICHT_CHECK_intern);
       }
     }
 
-    lcd_energiesparen(0); //Aktualisiert die energiespar Funktion
+    Serial.print(" A0:");
+    Serial.println(analogRead(A0));
 
+    lcd_energiesparen(0); // Aktualisiert die energiespar Funktion
 
     display_idle(' '); // 9ms
   }
@@ -162,7 +164,7 @@ void loop()
   {
     lastTime_5000 = millis(); // setzt Schleife zurück
 
-    if (LICHT_CHECK)
+    if (LICHT_CHECK_intern)
     {
       steckdose_on(1);
     }
@@ -283,12 +285,18 @@ void display_idle(char Knopf)
     break;
 
   case Knopf_D:
-    now = rtc.now();
+
+    static float brightness_precent;
+
+    brightness_precent = analogRead(A0) * 100.0 / 1024.0;
+
+    
 
     lcd.setCursor(0, 0);
-    lcd.print((String)now.day() + "/" + now.month() + "/" + now.year() + " " + now.hour() + ":" + now.minute() + "        ");
+    lcd.print((String)"Glow: " + brightness_precent + "%           ");
     lcd.setCursor(0, 1);
-    lcd.print((String) "HEUTE:                   ");
+    
+    lcd.print((String) "                         ");
 
     break;
   }
@@ -817,11 +825,17 @@ void steckdose_on(int state)
   if (state == 1)
   {
     mySwitch.sendTriState("00000FFF0F0F"); // Steckdose Einschalten
+    mySwitch.sendTriState("00000FFF0F11");
+    mySwitch.sendTriState("00000FFF0F0F");
+    mySwitch.sendTriState("00000FFF0F00");
     mySwitch.sendTriState("00000FFF0F0F");
   }
   else
   {
     mySwitch.sendTriState("00000FFF0FF0"); // Steckdose Ausschalten
+    mySwitch.sendTriState("00000FFF0F11");
+    mySwitch.sendTriState("00000FFF0FF0");
+    mySwitch.sendTriState("00000FFF0F00");
     mySwitch.sendTriState("00000FFF0FF0");
   }
 }
@@ -838,8 +852,22 @@ void lcd_energiesparen(int timer_reset)
   }
   delta = millis() - last_millis;
 
-  if (delta > 30000) //Macht nach 30 Sekunden wieder die Hintergrundbeleuchtung AUS
+  if (delta > 30000) // Macht nach 30 Sekunden wieder die Hintergrundbeleuchtung AUS
   {
     lcd.noBacklight();
   }
+}
+
+int licht_check_photosensor()
+{
+  static int puffer;
+  puffer = analogRead(A0);
+  if (puffer > 900)
+  {
+    return 1;
+  }
+  else if (puffer < 500){
+    return 0;
+  }
+    
 }
