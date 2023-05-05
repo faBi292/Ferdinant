@@ -212,6 +212,14 @@ void check_Knopf()
   {
     check_star();
   }
+  else if (getKey_puffer == '0')
+  {
+    steckdose_on(0);
+  }
+  else if (getKey_puffer == '1')
+  {
+    steckdose_on(1);
+  }
 }
 
 void display_idle(char Knopf)
