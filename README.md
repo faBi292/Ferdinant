@@ -1,16 +1,6 @@
-# Ferdinant
+# Ferdinant :seedling::bulb:
 
-## Verbesserungs Ideen
 
-- Idle D bearbeiten
-- 3D Modell für Box
-
-- Fritzing steckplan
-- im reset menu waitForKey() durch andere Loesung ersetzen um Sicherheit zu erhoehen
-
-- Stealth Mode
-
-----
 ## **Modus Auswahl**
 
 Da zwischen 3 Modis unterschieden werden muss, ist wichtig zu verstehen wie man den Modi richtig einstellt.
