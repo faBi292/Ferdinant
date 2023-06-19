@@ -89,11 +89,17 @@ Bsp. '13'
 
 ### Setzen des Tages
 
-Nun kann eingestellt werden wie viele, Tage übersprugnen werden sollen. Bsp. um am Tag 8 anzufangen muss die Zahl **'007'** eingegeben werden.
+Nun kann eingestellt werden wie viele, Tage übersprugnen werden sollen. 
+<pre><code>Tage skippen
+Bsp. '023'
+</code></pre>
+Bsp. um am Tag 8 anzufangen muss die Zahl **'007'** eingegeben werden.
 
 ---------
 # **Schaltzyklen**
-
+![image](https://github.com/faBi292/Ferdinant/assets/128408093/00e488de-69db-4617-ac2d-b133fe05d370)
+![image](https://github.com/faBi292/Ferdinant/assets/128408093/143746f7-2cf9-4718-9265-a535b985ab3c)
+![image](https://github.com/faBi292/Ferdinant/assets/128408093/ec677cc9-0443-40e9-a401-eccaeb17bb87)
 ---------
 # **Schaltplan**
 ![image](https://github.com/faBi292/Ferdinant/assets/128408093/2dec235a-4ab6-4c4c-a77f-f8bf3ecd59d3)
