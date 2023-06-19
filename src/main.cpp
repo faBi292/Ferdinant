@@ -6,8 +6,8 @@
 #include <LiquidCrystal_I2C.h>
 #include <RCSwitch.h>
 
-#define Yellow_LED_PIN 2
-#define Green_LED_PIN 3
+#define Red_LED_PIN 2
+#define Blue_LED_PIN 3
 #define RC_PIN 4
 
 RTC_DS3231 rtc;
@@ -60,22 +60,23 @@ int LICHT_CHECK_extern; // Sagt aus ob Licht gerade an ist via. Photosensor
 unsigned days_passed;   // Vergangene Tage beginnend bei 1
 char getKey_puffer;     // zuletzt eingegebene Taste wird hier gespeichert
 
-void set_usertime();                                            // Ermöglicht den Benutzer seine Einstellung vorzunehmen.
+void set_usertime();                                            // Erm├╢glicht den Benutzer seine Einstellung vorzunehmen.
 void print_time();                                              // Printed die aktuelle Uhrzeit der Uhr
 void print_time_passed();                                       // Printed die verstrichene Zeit seit anfang der Einstellung.
 unsigned int get_days_passed();                                 // Berechnet die verstrichenen Tage seit anfang der Einstellung.
 uint32_t get_seconds_passed_daily();                            // Berechnet die verstrichenen Sekunden seit 0 Uhr.
-int check_status(uint32_t aufgang_sek, uint32_t untergang_sek); // gibt 1 für Licht muss an sein und 0 für Licht muss aus sein.
+int check_status(uint32_t aufgang_sek, uint32_t untergang_sek); // gibt 1 f├╝r Licht muss an sein und 0 f├╝r Licht muss aus sein.
 uint32_t get_offset();                                          // Berechnet den Offset in bezug zu 1970 zu dem jeweiligen start datum der einstellung. Bsp sekunden von 1970 bis 2002
-void increaseDateTime(DateTime &dt, int days);                  // Erhöht das Datum einer DateTime Variablen um eine Anzahl von Tagen
-void check_star();                                              // Überprüft ob die Sternchentaste gedrückt geahlten wird, nach 3 Sekunden führt sie dann set_usertime() aus.
-uint32_t check_aufgang_sek(unsigned int days);                  // Bekommt die vergangen Tage übergeben und gibt die Aufgangsuhrzeit zurück
-uint32_t check_untergang_sek(unsigned int days);                // Bekommt die vergangen Tage übergeben und gibt die Untergangsuhrzeit zurück
-void display_idle(char Knopf);                                  // Bekommt A,B,C,D übergebn und wechselt dann in den entsprechenden Modi
-void check_Knopf();                                             // Überprüft ob Knopf gedrückt wurde und ruft entsprechend die Funktion auf
+void increaseDateTime(DateTime &dt, int days);                  // Erh├╢ht das Datum einer DateTime Variablen um eine Anzahl von Tagen
+void check_star();                                              // ├£berpr├╝ft ob die Sternchentaste gedr├╝ckt geahlten wird, nach 3 Sekunden f├╝hrt sie dann set_usertime() aus.
+uint32_t check_aufgang_sek(unsigned int days);                  // Bekommt die vergangen Tage ├╝bergeben und gibt die Aufgangsuhrzeit zur├╝ck
+uint32_t check_untergang_sek(unsigned int days);                // Bekommt die vergangen Tage ├╝bergeben und gibt die Untergangsuhrzeit zur├╝ck
+void display_idle(char Knopf);                                  // Bekommt A,B,C,D ├╝bergebn und wechselt dann in den entsprechenden Modi
+void check_Knopf();                                             // ├£berpr├╝ft ob Knopf gedr├╝ckt wurde und ruft entsprechend die Funktion auf
 void secondsToTime(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM" format aus
 void secondsToFullTime(uint32_t seconds, char *timeString);     // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH:MM:SS" format aus
 void secondsToHour(uint32_t seconds, char *timeString);         // Bekommt Sekunden als eingabe Wert und gibt sie ahls "HH,H" format aus
+float read_LichtSensor();                                       // Gibt die Aktuelle Lichtintensität in % zurück
 uint32_t get_lightseconds();                                    // Gibt die Sekunden die an dem Tag schon das Lich an ist wieder
 
 void init_RCSwitch(int PIN, int PulseLength);
@@ -115,12 +116,12 @@ void setup()
       ;
   }
 
-  pinMode(Yellow_LED_PIN, OUTPUT); // Gelbe LED
-  pinMode(Green_LED_PIN, OUTPUT);  // Grüne LED
+  pinMode(Red_LED_PIN, OUTPUT);  // Rote LED
+  pinMode(Blue_LED_PIN, OUTPUT); // Blaue LED
 
   pinMode(A0, INPUT); // Licht_Sensor
 
-  /*digitalWrite(Yellow_LED_PIN, HIGH);
+  /*digitalWrite(Red_LED_PIN, HIGH);
   for (int i = 1; i < 121; i++)
   {
     Serial.println((String)i + ":" + check_aufgang_sek(i) + ":" + check_untergang_sek(i));
@@ -139,12 +140,12 @@ void loop()
   if (millis() - lastTime_1000 >= 1000)
   {
 
-    lastTime_1000 = millis(); // setzt Schleife zurück
+    lastTime_1000 = millis(); // setzt Schleife zur├╝ck
 
     days_passed = get_days_passed();
 
     LICHT_CHECK_intern = check_status(check_aufgang_sek(days_passed), check_untergang_sek(days_passed)); // 6.5ms
-    digitalWrite(Green_LED_PIN, LICHT_CHECK_intern);
+    analogWrite(Blue_LED_PIN, LICHT_CHECK_intern * 30);
     LICHT_CHECK_extern = licht_check_photosensor();
 
     static boolean status = !LICHT_CHECK_intern; // Gibt an ob die Initialsendung nach Switch schon erfolgt ist
@@ -156,12 +157,12 @@ void loop()
 
     if (LICHT_CHECK_extern != LICHT_CHECK_intern)
     {
-      digitalWrite(Yellow_LED_PIN, HIGH);
+      digitalWrite(Red_LED_PIN, HIGH);
       steckdose_on(LICHT_CHECK_intern);
     }
     else
     {
-      digitalWrite(Yellow_LED_PIN, LOW);
+      digitalWrite(Red_LED_PIN, LOW);
     }
 
     lcd_energiesparen(0); // Aktualisiert die energiespar Funktion
@@ -171,7 +172,7 @@ void loop()
 
   if (millis() - lastTime_30000 >= 30000) // Setzt alle 30 Sekunden Signal raus
   {
-    lastTime_30000 = millis(); // setzt Schleife zurück
+    lastTime_30000 = millis(); // setzt Schleife zur├╝ck
 
     if (LICHT_CHECK_intern)
     {
@@ -305,7 +306,7 @@ void display_idle(char Knopf)
 
     static float brightness_precent;
 
-    brightness_precent = analogRead(A0) * 100.0 / 1024.0;
+    brightness_precent = read_LichtSensor();
 
     lcd.setCursor(0, 0);
     lcd.print((String) "Glow: " + brightness_precent + "%           ");
@@ -344,7 +345,7 @@ void check_star()
     lcd.setCursor(0, 1);
     lcd.print("USE '#' 4 RESET");
 
-    if (customKeypad.waitForKey() == '#') // hier m�sste eigentlich eine bessere L�sung her
+    if (customKeypad.waitForKey() == '#') // hier m∩┐╜sste eigentlich eine bessere L∩┐╜sung her
     {
       set_usertime();
       counter = 0;
@@ -361,7 +362,7 @@ void set_usertime()
   int set_process = 0;   // Zaehler Variable
   time_struct user_time; // Defeniert neuen Zeit Speicher
 
-  // erste Schleife für Jahr / Code
+  // erste Schleife f├╝r Jahr / Code
   do
   {
     lcd.clear();
@@ -419,7 +420,7 @@ void set_usertime()
 
   } while (set_process == 0);
 
-  // zweite Schleife für Stunde
+  // zweite Schleife f├╝r Stunde
   do
   {
     lcd.clear();
@@ -457,7 +458,7 @@ void set_usertime()
 
   } while (set_process == 1);
 
-  // dritte Schleife für Minuten
+  // dritte Schleife f├╝r Minuten
   do
   {
     lcd.clear();
@@ -497,7 +498,7 @@ void set_usertime()
 
   } while (set_process == 2);
 
-  // vierte Schleife für Tage
+  // vierte Schleife f├╝r Tage
   do
   {
     lcd.clear();
@@ -627,7 +628,7 @@ uint32_t get_offset()
     return 1136073600;
   }
 
-  return 0; // Falls es das Jahr nicht mehr geben sollte, könnte passieren wenn die Uhr lange nicht benutzt wird.
+  return 0; // Falls es das Jahr nicht mehr geben sollte, k├╢nnte passieren wenn die Uhr lange nicht benutzt wird.
 }
 
 unsigned int get_days_passed()
@@ -680,7 +681,7 @@ uint32_t check_aufgang_sek(unsigned int days)
     return (uint32_t)(18000 + (9000 / 119.0) * (days - 1)); // Von 5:00 -> 7:30
   }
 
-  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verl├ñsst
   {
     if (days <= 10)
     {
@@ -733,7 +734,7 @@ uint32_t check_untergang_sek(unsigned int days)
     return (uint32_t)(75600 - (9000 / 119.0) * (days - 1)); // Von 21:00 -> 18:30
   }
 
-  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verlässt
+  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verl├ñsst
   {
     if (days <= 10)
     {
@@ -866,16 +867,20 @@ void lcd_energiesparen(int timer_reset)
     lcd.noBacklight();
   }
 }
+float read_LichtSensor()
+{
+  return map(analogRead(A0), 0, 1023, 100.0, 0.0);
+}
 
 int licht_check_photosensor()
 {
-  static int puffer;
-  puffer = analogRead(A0);
-  if (puffer > 900)
+  static float puffer;
+  puffer = read_LichtSensor();
+  if (puffer > 80)
   {
     return 1;
   }
-  else if (puffer < 500)
+  else if (puffer < 30)
   {
     return 0;
   }
