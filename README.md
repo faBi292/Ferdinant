@@ -1,6 +1,6 @@
-# Ferdinant :seedling::bulb:
+# Ferdinant©️ 
 -------------------
-## **IDLE Screens**
+## **IDLE Screens** 
 Es gibt 4 Anzeigen die mit den A,B,C und D ausgewählt werden können.
 
 ### **IDLE A**
@@ -37,7 +37,7 @@ Dawn  : hh:mm:ss
 </code></pre>
 
 - "Glow", gibt an wie groß die Lichtintensität des Lichtsensor ist. 
-- :Warning:: Das Licht gilt als an bei über 80% und als aus bei 30%, dazwischen ist eine Grauzone/Puffer und wechselt erst wenn die Schwelle über/unterschritten wurde.
+- :warning:: Das Licht gilt als an bei über 80% und als aus bei 30%, dazwischen ist eine Grauzone/Puffer und wechselt erst wenn die Schwelle über/unterschritten wurde.
   
 -------------------
 
@@ -45,9 +45,9 @@ Dawn  : hh:mm:ss
 
 | Farbe | Bedeutung |
 | ------ | ----------- |
-| Blau   | Leuchtet wenn Steckdose "An" sein soll und ist aus wenn Steckdose "Aus" sein soll. |
-| Gelb | Leuchtet auf wenn gefunkt wird. |
-| Rot    | Leuchtet wenn Fehler erkannt wird, unzwar wenn Lichtsensor nicht mit dem internen Wert übereinstimmt.  |
+| 🔵 Blau   | Leuchtet wenn Steckdose "An" sein soll und ist aus wenn Steckdose "Aus" sein soll. |
+| 🟡 Gelb  | Leuchtet auf wenn gefunkt wird. |
+| 🔴 Rot    | Leuchtet wenn Fehler erkannt wird, unzwar wenn Lichtsensor nicht mit dem internen Wert übereinstimmt.  |
 
 --------------------
 
@@ -63,16 +63,12 @@ Nach dreimaligen druecken der Sternchen Taste   ` "*" `  auf dem Keypad, fragt d
 USE '#' 4 RESE
 </code></pre>
 
-Beachte, dass es moeglich ist zu jedem Zeitpunkt des Resetsablaufes, dass System kurz vom Strom zu entfernen um den Vorgang zu unterbrechen. Dadurch wird einfach der Zustand vor dem Resetablauf beibehalten.
+Beachte, dass es moeglich ist zu jedem Zeitpunkt des Resetsablaufes, dass System kurz vom auszuschalten um den Vorgang zu unterbrechen. Dadurch wird einfach der Zustand vor dem Modi Auswahl beibehalten.
 
-:Warning: Beachte werden muss, dass während man in der Auswahl ist, dass System nicht die Steckdose anschaltet.
-
-
-### _Jahr einstellen_
-Dieser Text enthält einen Unterstrich: \_
+:warning: Beachtet werden muss, dass während man in der Auswahl ist, dass System nicht die Steckdose anschaltet.
 
 
-
+### Jahr einstellen
 
 Wird der Reset bestaetigt oeffnet sich, das Menue das fragt welcher Modi ausgewaehlt werden soll. Dazu muss ein 4-stelliger Code eingegebn werden.
 
@@ -96,6 +92,15 @@ Ist der Code eingegebn wird nun nach der Uhrzeit (Stunde und Minute) gefragt. Hi
 Bsp. '13'
 </code></pre>
 
+### Setzen des Tages
+
+Nun kann eingestellt werden wie viele, Tage übersprugnen werden sollen. Bsp. um am Tag 8 anzufangen muss die Zahl "007" eingegeben werden.
+---------
+# Schaltzyklen
+
+---------
+# Schaltplan
+![image](https://github.com/faBi292/Ferdinant/assets/128408093/2dec235a-4ab6-4c4c-a77f-f8bf3ecd59d3)
 ---------
 # Code spezifische Notizen
 ## Tri-State Codes
