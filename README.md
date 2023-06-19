@@ -68,22 +68,17 @@ Beachte, dass es moeglich ist zu jedem Zeitpunkt des Resetsablaufes, dass System
 :warning: Beachtet werden muss, dass während man in der Auswahl ist, dass System nicht die Steckdose anschaltet.
 
 
-### Jahr einstellen
+### **Jahr einstellen**
 
-Wird der Reset bestaetigt oeffnet sich, das Menue das fragt welcher Modi ausgewaehlt werden soll. Dazu muss ein 4-stelliger Code eingegebn werden.
+Wird der Reset bestaetigt oeffnet sich, das Menue das fragt welcher Modi ausgewaehlt werden soll. Dazu muss ein 4-stelliger Code eingegebn werden.Es tritt ein Fehler auf, wenn ein Code eingegben wird den das System nicht kennt. Danach wird man erneut angewiesen einen Code einzugeben.
 
-<pre><code>Modi eingeben
-Bsp. '2008'
-</code></pre>
-Modi Liste:
-<pre><code>Half Season (80 Tage) = 2002
-Full Season (120 Tage) = 2004
-Tropical (100 Tage) = 2006
-</code></pre>
-Es tritt ein Fehler auf, wenn ein Code eingegben wird den das System nicht kennt. Danach wird man erneut angewiesen einen Code einzugeben.
+| Modi-Code | Modi-Bedeutung |
+| ---------- | ----------- |
+| 2002  | Half Season (80 Tage) |
+| 2004  | Full Season (120 Tage) |
+| 2006  | Tropical (100 Tage)  |
 
-
-### Setzen der Uhrzeit
+### **Setzen der Uhrzeit**
 
 Ist der Code eingegebn wird nun nach der Uhrzeit (Stunde und Minute) gefragt. Hier empfielt es sich die aktuelle Uhrzeit zu benutzen um die Steuerung der Tageszeit anzupassen. Natuerlich ist eine andere Uhrzeit auch moeglich. <br />
 (Beacht: bei der eingabe einer einstelligen Zahl wird folgende Formatierung erwartet Bsp.: fuer 6 Uhr muesste **'06'** eingegeben werden, das selbe gilt fuer die Minuten).
@@ -94,15 +89,16 @@ Bsp. '13'
 
 ### Setzen des Tages
 
-Nun kann eingestellt werden wie viele, Tage übersprugnen werden sollen. Bsp. um am Tag 8 anzufangen muss die Zahl "007" eingegeben werden.
----------
-# Schaltzyklen
+Nun kann eingestellt werden wie viele, Tage übersprugnen werden sollen. Bsp. um am Tag 8 anzufangen muss die Zahl **'007'** eingegeben werden.
 
 ---------
-# Schaltplan
+# **Schaltzyklen**
+
+---------
+# **Schaltplan**
 ![image](https://github.com/faBi292/Ferdinant/assets/128408093/2dec235a-4ab6-4c4c-a77f-f8bf3ecd59d3)
 ---------
-# Code spezifische Notizen
+# **Code spezifische Notizen**
 ## Tri-State Codes
 <pre><code>AN = mySwitch.sendTriState("00000FFF0F0F");
 </code></pre>
