@@ -111,10 +111,15 @@ Sobald der Zyklus über sein Ende hinaus verwendet wird, benutzt er seine letzte
 </code></pre>
 <pre><code>AUS = mySwitch.sendTriState("00000FFF0FF0");
 </code></pre>
+
 # Bauteile
 
 | Komponente | Modell/Bezeichnung |
 | ---------- | ----------- |
 | Steckdose  | RCS 1000 N Comfort (Mx. 1000 Watt) |
-| Uhr  | RS |
-| Sender  | sdf |
+| Uhr  | RTC_DS3231 |
+| Sender  | 433_MHz Transmitter |
+| Board  | 16Mhz NANO V 3,0 Atmega328 |
+| Display  | LCD1602 |
+| Keypad  | 4x4 Matrix Tastatur  |
+
