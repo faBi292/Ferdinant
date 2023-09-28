@@ -103,7 +103,7 @@ Sobald der Zyklus über sein Ende hinaus verwendet wird, benutzt er seine letzte
 ![image](https://github.com/faBi292/Ferdinant/assets/128408093/ec677cc9-0443-40e9-a401-eccaeb17bb87)
 ---------
 # **Schaltplan**
-![image](https://github.com/faBi292/Ferdinant/assets/128408093/2dec235a-4ab6-4c4c-a77f-f8bf3ecd59d3)
+![IMG_0281](https://github.com/faBi292/Ferdinant/assets/128408093/43a7783e-2ffe-4670-a9e3-5ab0416d7f00)
 ---------
 # **Code spezifische Notizen**
 ## Tri-State Codes
