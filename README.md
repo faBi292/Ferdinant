@@ -65,7 +65,7 @@ USE '#' 4 RESE
 
 Beachte, dass es moeglich ist zu jedem Zeitpunkt des Resetsablaufes, dass System kurz vom auszuschalten um den Vorgang zu unterbrechen. Dadurch wird einfach der Zustand vor dem Modi Auswahl beibehalten.
 
-:warning: Beachtet werden muss, dass während man in der Auswahl ist, dass System nicht die Steckdose anschaltet.
+:warning: Beachtet werden muss, dass während man in der Auswahl ist, dass System nicht die Steckdose steuern kann.
 
 
 ### **Jahr einstellen**
