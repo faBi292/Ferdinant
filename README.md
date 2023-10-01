@@ -36,8 +36,8 @@ Dawn  : hh:mm:ss
 
 </code></pre>
 
-- "Glow", gibt an wie groß die Lichtintensität des Lichtsensor ist. 
-- :warning:: Das Licht gilt als an bei über 80% und als aus bei 30%, dazwischen ist eine Grauzone/Puffer und wechselt erst wenn die Schwelle über/unterschritten wurde.
+"Glow", gibt an wie groß die Lichtintensität des Lichtsensor ist. 
+ℹ️ Das Licht gilt als an bei über 80% und als aus bei 30%, dazwischen ist eine Grauzone/Puffer und wechselt erst wenn die Schwelle über/unterschritten wurde.
   
 -------------------
 
@@ -97,7 +97,8 @@ Bsp. um am Tag 8 anzufangen muss die Zahl **'007'** eingegeben werden.
 
 ---------
 # **Schaltzyklen**
-Sobald der Zyklus über sein Ende hinaus verwendet wird, benutzt er seine letzten Schaltzeiten die ganze Zeit weiter.
+ℹ️ Sobald der Zyklus über sein Ende hinaus verwendet wird, benutzt er seine letzten Schaltzeiten die ganze Zeit weiter.
+
 ![Screenshot 2023-10-01 151442](https://github.com/faBi292/Ferdinant/assets/128408093/40d7a6c4-8387-4b13-ab67-f5a3f7043f9b)
 
 ---------
