@@ -9,10 +9,10 @@
 - I2C LCD Funktionen erweitert: ( Idle A,B,C und Energiespar Modus)
 - Auf Nano Board umgestiegen 
 - Steckdose wird jetzt über Tri-State angestuert
+- Implementierung des Lichtsensors
 
 
 ## v1.0-beta (26-03-2023)
-
 
 - RC Modul funktionsfähig eingebunden
 - Keypad Funktionen implementiert
