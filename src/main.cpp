@@ -13,6 +13,7 @@
 RTC_DS3231 rtc;
 RCSwitch mySwitch;
 
+const int STATIC = 2000;
 const int HALF_SEASON = 2002;
 const int FULL_SEASON = 2004;
 const int TROPICAL = 2006;
@@ -285,6 +286,10 @@ void display_idle(char Knopf)
     lcd.setCursor(0, 1);
     if (now.year() == HALF_SEASON)
     {
+      lcd.print("Static    ");
+    }
+    else if (now.year() == HALF_SEASON)
+    {
       lcd.print("Half Season  80d  ");
     }
     else if (now.year() == FULL_SEASON)
@@ -387,7 +392,15 @@ void set_usertime()
     lcd.print(user_time_code[3]);
     // Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1] + user_time_code[2] + user_time_code[3]);
 
-    if (atoi(user_time_code) == HALF_SEASON)
+    if (atoi(user_time_code) == STATIC)
+    {
+      set_process = 1;
+      user_time.jahr = atoi(user_time_code);
+      lcd.setCursor(0, 1);
+      lcd.print("STATIC");
+      delay(2000);
+    }
+    else if (atoi(user_time_code) == HALF_SEASON)
     {
       set_process = 1;
       user_time.jahr = atoi(user_time_code);
@@ -615,6 +628,10 @@ uint32_t get_offset()
 
   now = rtc.now();
 
+  if (now.year() == STATIC)
+  {
+    return 946684800;
+  }
   if (now.year() == HALF_SEASON)
   {
     return 1009843200;
@@ -663,6 +680,11 @@ uint32_t check_aufgang_sek(unsigned int days)
 
   now = rtc.now();
 
+  if (now.year() == STATIC)
+  {
+    return (uint32_t)(21600); // 6 Uhr
+  }
+
   if (now.year() == HALF_SEASON)
   {
     if (days > 80)
@@ -681,7 +703,7 @@ uint32_t check_aufgang_sek(unsigned int days)
     return (uint32_t)(18000 + (9000 / 119.0) * (days - 1)); // Von 5:00 -> 7:30
   }
 
-  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verl├ñsst
+  if (now.year() == TROPICAL) 
   {
     if (days <= 10)
     {
@@ -716,6 +738,12 @@ uint32_t check_untergang_sek(unsigned int days)
   static DateTime now;
 
   now = rtc.now();
+
+  if (now.year() == STATIC)
+  {
+    return (uint32_t)(64800); // 18 Uhr
+  }
+
   if (now.year() == HALF_SEASON)
   {
     if (days > 80)
