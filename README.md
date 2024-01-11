@@ -74,12 +74,14 @@ Beachte, dass es moeglich ist zu jedem Zeitpunkt des Resetsablaufes, dass System
 
 Wird der Reset bestaetigt oeffnet sich, das Menue das fragt welcher Modi ausgewaehlt werden soll. Dazu muss ein 4-stelliger Code eingegebn werden.Es tritt ein Fehler auf, wenn ein Code eingegben wird den das System nicht kennt. Danach wird man erneut angewiesen einen Code einzugeben.
 
-| Modi-Code | Modi-Bedeutung            |
-| --------- | ------------------------- |
-| 2000      | Static (Statischer Modus) |
-| 2002      | Half Season (80 Tage)     |
-| 2004      | Full Season (120 Tage)    |
-| 2006      | Tropical (100 Tage)       |
+| Modi-Code | Modi-Bedeutung           |
+| --------- | ------------------------ |
+| 2000      | Half Season (80 Tage)    |
+| 2001      | Full Season (120 Tage)   |
+| 2002      | Tropical (100 Tage)      |
+| 2003      | Veggie ( - Tage)        |
+| 2004      | Production ( - Tage)   |
+| 2005      | Short Veggie ( - Tage) |
 
 ### **Setzen der Uhrzeit**
 
@@ -105,7 +107,9 @@ Bsp. um am Tag 8 anzufangen muss die Zahl **'007'** eingegeben werden.
 # **Schaltzyklen**
 
 - ℹ️ Sobald der Zyklus über sein Ende hinaus verwendet wird, benutzt er seine letzten Schaltzeiten die ganze Zeit weiter.
-- Modus: **STATIC** -> Beginnt um **6 Uhr** und Endet um **18 Uhr**
+- Modus: **Veggie** -> Beginnt um **5 Uhr** und Endet um **23 Uhr**
+- Modus: **Production** -> Beginnt um **8 Uhr** und Endet um **20 Uhr**
+- Modus: **Short Veggie** -> Beginnt um **6 Uhr** und Endet um **22 Uhr**
 
 ![Screenshot 2023-10-01 151442](https://github.com/faBi292/Ferdinant/assets/128408093/40d7a6c4-8387-4b13-ab67-f5a3f7043f9b)
 

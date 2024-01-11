@@ -13,10 +13,12 @@
 RTC_DS3231 rtc;
 RCSwitch mySwitch;
 
-const int STATIC = 2000;
-const int HALF_SEASON = 2002;
-const int FULL_SEASON = 2004;
-const int TROPICAL = 2006;
+const int HALF_SEASON = 2000;
+const int FULL_SEASON = 2001;
+const int TROPICAL = 2002;
+const int VEGGIE = 2003;
+const int PRODUCTION = 2004;
+const int SHORT_VEGGIE = 2005;
 
 const byte ROWS = 4; // four rows
 const byte COLS = 4; // four columns
@@ -286,10 +288,6 @@ void display_idle(char Knopf)
     lcd.setCursor(0, 1);
     if (now.year() == HALF_SEASON)
     {
-      lcd.print("Static    ");
-    }
-    else if (now.year() == HALF_SEASON)
-    {
       lcd.print("Half Season  80d  ");
     }
     else if (now.year() == FULL_SEASON)
@@ -299,6 +297,18 @@ void display_idle(char Knopf)
     else if (now.year() == TROPICAL)
     {
       lcd.print("Tropical    100d ");
+    }
+    else if (now.year() == VEGGIE)
+    {
+      lcd.print("Veggie       18h ");
+    }
+    else if (now.year() == PRODUCTION)
+    {
+      lcd.print("Production   12h ");
+    }
+    else if (now.year() == SHORT_VEGGIE)
+    {
+      lcd.print("Short Veg.   16h ");
     }
     else
     {
@@ -392,15 +402,7 @@ void set_usertime()
     lcd.print(user_time_code[3]);
     // Serial.println(String("Eingabe: ") + user_time_code[0] + user_time_code[1] + user_time_code[2] + user_time_code[3]);
 
-    if (atoi(user_time_code) == STATIC)
-    {
-      set_process = 1;
-      user_time.jahr = atoi(user_time_code);
-      lcd.setCursor(0, 1);
-      lcd.print("STATIC");
-      delay(2000);
-    }
-    else if (atoi(user_time_code) == HALF_SEASON)
+    if (atoi(user_time_code) == HALF_SEASON)
     {
       set_process = 1;
       user_time.jahr = atoi(user_time_code);
@@ -422,6 +424,30 @@ void set_usertime()
       user_time.jahr = atoi(user_time_code);
       lcd.setCursor(0, 1);
       lcd.print("TROPICAL");
+      delay(2000);
+    }
+    else if (atoi(user_time_code) == VEGGIE)
+    {
+      set_process = 1;
+      user_time.jahr = atoi(user_time_code);
+      lcd.setCursor(0, 1);
+      lcd.print("VEGGIE");
+      delay(2000);
+    }
+    else if (atoi(user_time_code) == PRODUCTION)
+    {
+      set_process = 1;
+      user_time.jahr = atoi(user_time_code);
+      lcd.setCursor(0, 1);
+      lcd.print("PRODUCTION");
+      delay(2000);
+    }
+    else if (atoi(user_time_code) == SHORT_VEGGIE)
+    {
+      set_process = 1;
+      user_time.jahr = atoi(user_time_code);
+      lcd.setCursor(0, 1);
+      lcd.print("SHORT_VEGGIE");
       delay(2000);
     }
     else
@@ -623,26 +649,34 @@ int check_status(uint32_t aufgang_sek, uint32_t untergang_sek)
 }
 
 uint32_t get_offset()
-{
+{ //TODO Check if Offsets are correct
   static DateTime now;
 
   now = rtc.now();
 
-  if (now.year() == STATIC)
+  if (now.year() == HALF_SEASON)
   {
     return 946684800;
   }
-  if (now.year() == HALF_SEASON)
-  {
-    return 1009843200;
-  }
   if (now.year() == FULL_SEASON)
   {
-    return 1072915200;
+    return 978307200;
   }
   if (now.year() == TROPICAL)
   {
-    return 1136073600;
+    return 1009843200;
+  }
+  if (now.year() == VEGGIE)
+  {
+    return 1041379200;
+  }
+  if (now.year() == PRODUCTION)
+  {
+    return 1072915200;
+  }
+  if (now.year() == SHORT_VEGGIE)
+  {
+    return 1104537600;
   }
 
   return 0; // Falls es das Jahr nicht mehr geben sollte, k├╢nnte passieren wenn die Uhr lange nicht benutzt wird.
@@ -679,11 +713,6 @@ uint32_t check_aufgang_sek(unsigned int days)
   static DateTime now;
 
   now = rtc.now();
-
-  if (now.year() == STATIC)
-  {
-    return (uint32_t)(21600); // 6 Uhr
-  }
 
   if (now.year() == HALF_SEASON)
   {
@@ -730,7 +759,24 @@ uint32_t check_aufgang_sek(unsigned int days)
       return (uint32_t)(27000);
     }
   }
+
+  if (now.year() == VEGGIE)
+  {
+    return (uint32_t)(18000); // 5:00 Uhr
+  }
+
+  if (now.year() == PRODUCTION)
+  {
+    return (uint32_t)(28800); // 8:00 Uhr
+  }
+
+  if (now.year() == SHORT_VEGGIE)
+  {
+    return (uint32_t)(21600); // 6:00 Uhr
+  }
+
   return 0;
+
 }
 
 uint32_t check_untergang_sek(unsigned int days)
@@ -762,7 +808,7 @@ uint32_t check_untergang_sek(unsigned int days)
     return (uint32_t)(75600 - (9000 / 119.0) * (days - 1)); // Von 21:00 -> 18:30
   }
 
-  if (now.year() == TROPICAL) // Struktur muss noch getestet werden, gehe davon aus das er nach dem ersten return die Funktion verl├ñsst
+  if (now.year() == TROPICAL)
   {
     if (days <= 10)
     {
@@ -789,6 +835,22 @@ uint32_t check_untergang_sek(unsigned int days)
       return (uint32_t)(63000);
     }
   }
+
+  if (now.year() == VEGGIE)
+  {
+    return (uint32_t)(82800); // 23:00 Uhr
+  }
+
+  if (now.year() == PRODUCTION)
+  {
+    return (uint32_t)(72000); // 20:00 Uhr
+  }
+
+  if (now.year() == SHORT_VEGGIE)
+  {
+    return (uint32_t)(79200); // 22:00 Uhr
+  }
+
   return 0;
 }
 
