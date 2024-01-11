@@ -92,7 +92,7 @@ Wird der Reset bestaetigt oeffnet sich, das Menue das fragt welcher Modi ausgewa
 
 ### **Setzen der Uhrzeit**
 
-Ist der Code eingegebn wird nun nach der Uhrzeit (Stunde und Minute) gefragt. Hier empfielt es sich die aktuelle Uhrzeit zu benutzen um die Steuerung der Tageszeit anzupassen. Natuerlich ist eine andere Uhrzeit auch moeglich. `<br />`
+Ist der Code eingegebn wird nun nach der Uhrzeit (Stunde und Minute) gefragt. Hier empfielt es sich die aktuelle Uhrzeit zu benutzen um die Steuerung der Tageszeit anzupassen. Natuerlich ist eine andere Uhrzeit auch moeglich.
 (Beachte: bei der Eingabe einer einstelligen Zahl wird folgende Formatierung erwartet Bsp.: fuer 6 Uhr muesste **'06'** eingegeben werden, das selbe gilt fuer die Minuten).
 
 <pre><code>Stunde eingeben
@@ -129,9 +129,11 @@ Bsp. um am Tag 8 anzufangen muss die Zahl **'007'** eingegeben werden.
 
 # **Schaltplan**
 
+![Schaltplan](Zeiten_Tabellen\Schaltplan_Ferdinant.jpg)
+
 # **Code spezifische Notizen**
 
-## Tri-State Codes
+**Tri-State Codes**
 
 <pre><code>AN = mySwitch.sendTriState("00000FFF0F0F");
 </code></pre>
