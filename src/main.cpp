@@ -785,11 +785,6 @@ uint32_t check_untergang_sek(unsigned int days)
 
   now = rtc.now();
 
-  if (now.year() == STATIC)
-  {
-    return (uint32_t)(64800); // 18 Uhr
-  }
-
   if (now.year() == HALF_SEASON)
   {
     if (days > 80)
